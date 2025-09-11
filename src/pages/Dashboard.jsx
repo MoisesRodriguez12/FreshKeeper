@@ -10,30 +10,114 @@ const Dashboard = () => {
   const totalProducts = products.length;
   const freshProducts = products.filter(p => getExpiryStatus(p.expiryDate) === 'fresh').length;
 
-  const testNotification = () => {
-    if ('Notification' in window) {
-      if (Notification.permission === 'granted') {
-        new Notification('🍎 FreshKeeper - Notificación de prueba', {
+  const testNotification = async () => {
+    if (!('Notification' in window)) {
+      alert('Tu navegador no soporta notificaciones push.');
+      return;
+    }
+
+    try {
+      let permission = Notification.permission;
+      
+      if (permission === 'default') {
+        permission = await Notification.requestPermission();
+      }
+      
+      if (permission === 'granted') {
+        // Intentar usar Service Worker primero
+        if ('serviceWorker' in navigator) {
+          try {
+            const registration = await navigator.serviceWorker.ready;
+            
+            if (registration && registration.showNotification) {
+              await registration.showNotification('🍎 FreshKeeper - Notificación de prueba', {
+                body: 'Las notificaciones están funcionando correctamente',
+                icon: '/favicon.svg',
+                badge: '/favicon.svg',
+                tag: 'test-notification',
+                vibrate: [200, 100, 200],
+                data: {
+                  url: window.location.origin,
+                  type: 'test'
+                },
+                actions: [
+                  {
+                    action: 'close',
+                    title: 'Cerrar'
+                  }
+                ]
+              });
+              
+              alert('¡Notificación enviada! Revisa tu dispositivo.');
+              return;
+            }
+          } catch (swError) {
+            console.log('Service Worker no disponible, usando notificación básica');
+          }
+        }
+
+        // Fallback: notificación simple
+        const notification = new Notification('🍎 FreshKeeper - Notificación de prueba', {
           body: 'Las notificaciones están funcionando correctamente',
-          icon: '/favicon.svg',
+          icon: window.location.origin + '/favicon.svg',
+          badge: window.location.origin + '/favicon.svg',
           tag: 'test-notification',
-        });
-      } else if (Notification.permission === 'default') {
-        Notification.requestPermission().then(permission => {
-          if (permission === 'granted') {
-            new Notification('🍎 FreshKeeper - ¡Notificaciones activadas!', {
-              body: 'Ahora recibirás alertas sobre productos por caducar',
-              icon: '/favicon.svg',
-              tag: 'permission-granted',
-            });
+          vibrate: [200, 100, 200],
+          data: {
+            url: window.location.origin,
+            type: 'test'
           }
         });
-      } else {
-        alert('Las notificaciones están bloqueadas. Por favor, habilítalas en la configuración del navegador.');
+
+        // Auto-cerrar después de 5 segundos
+        setTimeout(() => {
+          try {
+            notification.close();
+          } catch (e) {
+            // Ignorar errores de cierre
+          }
+        }, 5000);
+
+        notification.onclick = () => {
+          window.focus();
+          notification.close();
+        };
+        
+        // Mostrar mensaje de confirmación
+        setTimeout(() => {
+          alert('¡Notificación enviada! Revisa tu dispositivo.');
+        }, 500);
+        
+      } else if (permission === 'denied') {
+        alert('Las notificaciones están bloqueadas. Para activarlas:\n\n' +
+              '1. Haz clic en el icono del candado en la barra de direcciones\n' +
+              '2. Permite las notificaciones\n' +
+              '3. Recarga la página');
       }
-    } else {
-      alert('Tu navegador no soporta notificaciones push.');
+    } catch (error) {
+      console.error('Error al probar notificaciones:', error);
+      alert('Error al enviar la notificación. Inténtalo de nuevo.');
     }
+  };
+
+  const addTestExpiringProduct = () => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    
+    const testProduct = {
+      id: 'test-expiry-' + Date.now(),
+      name: 'Manzanas Rojas (Prueba)',
+      category: 'Frutas',
+      expiryDate: format(tomorrow, 'yyyy-MM-dd'),
+      quantity: 5,
+      unit: 'unidades',
+      location: 'Nevera',
+      addedDate: format(new Date(), 'yyyy-MM-dd'),
+      photo: null
+    };
+    
+    addProduct(testProduct);
+    alert('Producto de prueba añadido. Caduca mañana y debería generar una notificación automática en unos segundos.');
   };
 
   const stats = [
@@ -74,36 +158,48 @@ const Dashboard = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-        <div className="flex items-center justify-between">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Panel de Control</h1>
-            <p className="text-gray-600">Gestiona tus alimentos y evita el desperdicio</p>
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1 sm:mb-2">Panel de Control</h1>
+            <p className="text-sm sm:text-base text-gray-600">Gestiona tus alimentos y evita el desperdicio</p>
           </div>
-          <button
-            onClick={testNotification}
-            className="flex items-center px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors text-sm font-medium"
-            title="Probar notificaciones push"
-          >
-            <Bell className="h-4 w-4 mr-2" />
-            Probar Notificaciones
-          </button>
+          <div className="flex flex-col sm:flex-row gap-2">
+            <button
+              onClick={testNotification}
+              className="flex items-center justify-center px-3 sm:px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors text-sm font-medium w-full sm:w-auto"
+              title="Probar notificaciones push"
+            >
+              <Bell className="h-4 w-4 mr-2" />
+              <span className="hidden sm:inline">Probar Notificaciones</span>
+              <span className="sm:hidden">Probar Push</span>
+            </button>
+            <button
+              onClick={addTestExpiringProduct}
+              className="flex items-center justify-center px-3 sm:px-4 py-2 bg-orange-100 text-orange-700 rounded-lg hover:bg-orange-200 transition-colors text-sm font-medium w-full sm:w-auto"
+              title="Añadir producto que caduca mañana para probar notificaciones automáticas"
+            >
+              <Package className="h-4 w-4 mr-2" />
+              <span className="hidden sm:inline">Añadir Producto Prueba</span>
+              <span className="sm:hidden">+ Prueba</span>
+            </button>
+          </div>
         </div>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
         {stats.map((stat) => {
           const Icon = stat.icon;
           return (
-            <div key={stat.title} className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <div key={stat.title} className="bg-white rounded-xl shadow-sm border border-gray-100 p-3 sm:p-6">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600 mb-1">{stat.title}</p>
-                  <p className="text-3xl font-bold text-gray-900">{stat.value}</p>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs sm:text-sm font-medium text-gray-600 mb-1 truncate">{stat.title}</p>
+                  <p className="text-xl sm:text-3xl font-bold text-gray-900">{stat.value}</p>
                 </div>
-                <div className={`${stat.bgColor} ${stat.textColor} p-3 rounded-lg`}>
-                  <Icon className="h-6 w-6" />
+                <div className={`${stat.bgColor} ${stat.textColor} p-2 sm:p-3 rounded-lg flex-shrink-0`}>
+                  <Icon className="h-4 w-4 sm:h-6 sm:w-6" />
                 </div>
               </div>
             </div>

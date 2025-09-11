@@ -113,6 +113,8 @@ export const AppProvider = ({ children }) => {
 
     const checkExpiringProducts = () => {
       const expiring = getExpiringProducts();
+      console.log('Productos por caducar encontrados:', expiring.length);
+      
       const newNotifications = expiring
         .filter(product => !notifiedProductsRef.current.has(product.id))
         .map(product => ({
@@ -123,29 +125,78 @@ export const AppProvider = ({ children }) => {
           timestamp: new Date().toISOString()
         }));
       
+      console.log('Nuevas notificaciones a crear:', newNotifications.length);
+      
       if (newNotifications.length > 0) {
         setNotifications(prev => [...prev, ...newNotifications]);
         
-        // Marcar productos como notificados
+        // Enviar push notifications para cada producto
         newNotifications.forEach(notification => {
           notifiedProductsRef.current.add(notification.product.id);
+          
+          // Enviar push notification
+          console.log('Enviando push notification para:', notification.product.name);
+          sendNotification({
+            id: notification.id,
+            type: 'expiry',
+            product: notification.product,
+            message: `${notification.product.name} expirará pronto. ¡Úsalo antes de que se eche a perder!`,
+            timestamp: new Date()
+          });
         });
+        
+        console.log('Notificaciones añadidas al estado y push notifications enviadas');
       }
     };
 
-    // Verificar inmediatamente al cargar
-    checkExpiringProducts();
+    // Verificar inmediatamente al cargar con un pequeño delay
+    const timeoutId = setTimeout(checkExpiringProducts, 1000);
     
     // Verificar cada 30 minutos
     const interval = setInterval(checkExpiringProducts, 30 * 60 * 1000);
-    return () => clearInterval(interval);
+    
+    return () => {
+      clearTimeout(timeoutId);
+      clearInterval(interval);
+    };
   }, [user, getExpiringProducts]);
 
-  // Solicitar permisos de notificación
+  // Registrar service worker y solicitar permisos de notificación
   useEffect(() => {
-    if (user && 'Notification' in window) {
-      if (Notification.permission === 'default') {
-        Notification.requestPermission();
+    if (user) {
+      // Registrar service worker
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js')
+          .then((registration) => {
+            console.log('Service Worker registrado exitosamente');
+            
+            // Esperar a que esté listo
+            return navigator.serviceWorker.ready;
+          })
+          .then((registration) => {
+            console.log('Service Worker listo para notificaciones');
+            
+            // Verificar si hay actualizaciones
+            registration.addEventListener('updatefound', () => {
+              console.log('Nueva versión disponible');
+            });
+          })
+          .catch((error) => {
+            console.error('Error al registrar Service Worker:', error);
+          });
+      } else {
+        console.log('Service Workers no soportados en este navegador');
+      }
+
+      // Solicitar permisos de notificación
+      if ('Notification' in window) {
+        if (Notification.permission === 'default') {
+          Notification.requestPermission().then((permission) => {
+            if (permission === 'granted') {
+              console.log('Permisos de notificación concedidos');
+            }
+          });
+        }
       }
     }
   }, [user]);
@@ -153,33 +204,138 @@ export const AppProvider = ({ children }) => {
   // Enviar notificaciones push
   const lastNotificationCount = useRef(0);
   
+  const sendNotification = useCallback(async (notification) => {
+    if (!('Notification' in window)) {
+      console.log('Notificaciones no soportadas');
+      return;
+    }
+
+    if (Notification.permission !== 'granted') {
+      console.log('Permisos de notificación no concedidos');
+      return;
+    }
+
+    console.log('Intentando enviar notificación para:', notification.product.name);
+
+    try {
+      // Intentar usar Service Worker para notificaciones con acciones
+      if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+        try {
+          const registration = await navigator.serviceWorker.ready;
+          
+          if (registration && typeof registration.showNotification === 'function') {
+            console.log('Enviando notificación via Service Worker');
+            await registration.showNotification('🍎 FreshKeeper - ¡Producto por caducar!', {
+              body: notification.message,
+              icon: '/favicon.svg',
+              badge: '/favicon.svg',
+              tag: `expiry-${notification.product.id}`,
+              requireInteraction: false,
+              silent: false,
+              vibrate: [200, 100, 200],
+              data: {
+                productId: notification.product.id,
+                productName: notification.product.name,
+                url: window.location.origin
+              },
+              actions: [
+                {
+                  action: 'view',
+                  title: 'Ver producto',
+                  icon: '/favicon.svg'
+                }
+              ]
+            });
+            console.log('Notificación SW enviada exitosamente');
+            return;
+          }
+        } catch (swError) {
+          console.log('Error con Service Worker, usando fallback:', swError.message);
+        }
+      }
+
+      // Fallback: notificación simple sin acciones
+      console.log('Enviando notificación directa (fallback)');
+      const notificationOptions = {
+        body: notification.message,
+        icon: window.location.origin + '/favicon.svg',
+        tag: `expiry-${notification.product.id}`,
+        requireInteraction: false,
+        silent: false,
+        data: {
+          productId: notification.product.id,
+          productName: notification.product.name
+        }
+      };
+
+      // Añadir vibración solo en dispositivos móviles
+      if (/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+        notificationOptions.vibrate = [200, 100, 200];
+      }
+
+      const notif = new Notification('🍎 FreshKeeper - ¡Producto por caducar!', notificationOptions);
+      console.log('Notificación directa creada');
+      
+      // Auto-cerrar después de 8 segundos
+      setTimeout(() => {
+        try {
+          notif.close();
+        } catch (e) {
+          // Ignorar errores de cierre
+        }
+      }, 8000);
+
+      notif.onclick = () => {
+        window.focus();
+        notif.close();
+      };
+
+      notif.onerror = (error) => {
+        console.error('Error en notificación directa:', error);
+      };
+
+    } catch (error) {
+      console.error('Error al enviar notificación:', error);
+      
+      // Último recurso: notificación ultra básica
+      try {
+        console.log('Intentando notificación ultra básica');
+        const basicNotif = new Notification('🍎 FreshKeeper', {
+          body: notification.message
+        });
+        
+        basicNotif.onclick = () => {
+          window.focus();
+          basicNotif.close();
+        };
+        
+        setTimeout(() => basicNotif.close(), 5000);
+        console.log('Notificación básica enviada');
+      } catch (basicError) {
+        console.error('Error con notificación básica:', basicError);
+      }
+    }
+  }, []);
+  
   useEffect(() => {
     // Solo enviar notificaciones para nuevas notificaciones
     const newNotificationsCount = notifications.length;
+    console.log(`Total notificaciones: ${newNotificationsCount}, Últimas enviadas: ${lastNotificationCount.current}`);
     
-    if (newNotificationsCount > lastNotificationCount.current && 'Notification' in window && Notification.permission === 'granted') {
+    if (newNotificationsCount > lastNotificationCount.current) {
       const newNotifications = notifications.slice(lastNotificationCount.current);
+      console.log('Enviando notificaciones push:', newNotifications.length);
       
-      newNotifications.forEach(notification => {
+      newNotifications.forEach((notification, index) => {
         if (notification.type === 'warning') {
-          new Notification('🍎 FreshKeeper - ¡Producto por caducar!', {
-            body: notification.message,
-            icon: '/favicon.svg',
-            badge: '/favicon.svg',
-            tag: `expiry-${notification.product.id}`,
-            requireInteraction: false,
-            silent: false,
-            data: {
-              productId: notification.product.id,
-              productName: notification.product.name
-            }
-          });
+          console.log(`Enviando notificación ${index + 1}:`, notification.product.name);
+          sendNotification(notification);
         }
       });
     }
     
     lastNotificationCount.current = newNotificationsCount;
-  }, [notifications]);
+  }, [notifications, sendNotification]);
 
   const value = {
     user,

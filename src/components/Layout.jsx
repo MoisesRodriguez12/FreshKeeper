@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useApp } from '../context/AppContext';
+import InstallPWA from './InstallPWA';
 import { 
   Home, 
   Plus, 
@@ -33,9 +34,9 @@ const Layout = ({ children, currentPage, onPageChange }) => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Navegación superior */}
-      <nav className="bg-white border-b border-gray-200 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
+      <nav className="bg-white border-b border-gray-200 shadow-sm fixed w-full top-0 z-50">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8">
+          <div className="flex justify-between h-14 sm:h-16">
             {/* Logo y menú móvil */}
             <div className="flex items-center">
               <button
@@ -49,11 +50,11 @@ const Layout = ({ children, currentPage, onPageChange }) => {
                 )}
               </button>
               
-              <div className="flex items-center ml-4 md:ml-0">
-                <div className="h-8 w-8 bg-gradient-to-r from-green-400 to-emerald-500 rounded-lg flex items-center justify-center mr-3">
-                  <Leaf className="h-5 w-5 text-white" />
+              <div className="flex items-center ml-2 md:ml-0">
+                <div className="h-7 w-7 sm:h-8 sm:w-8 bg-gradient-to-r from-green-400 to-emerald-500 rounded-lg flex items-center justify-center mr-2 sm:mr-3">
+                  <Leaf className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                 </div>
-                <h1 className="text-xl font-bold text-gray-900">FreshKeeper</h1>
+                <h1 className="text-lg sm:text-xl font-bold text-gray-900">FreshKeeper</h1>
               </div>
             </div>
 
@@ -81,14 +82,14 @@ const Layout = ({ children, currentPage, onPageChange }) => {
             </div>
 
             {/* Usuario y notificaciones */}
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2 sm:space-x-4">
               {/* Notificaciones */}
               <div className="relative">
                 <button
                   onClick={() => setShowNotifications(!showNotifications)}
-                  className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full focus:outline-none focus:ring-2 focus:ring-green-500 relative"
+                  className="p-1.5 sm:p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full focus:outline-none focus:ring-2 focus:ring-green-500 relative"
                 >
-                  <Bell className="h-5 w-5" />
+                  <Bell className="h-4 w-4 sm:h-5 sm:w-5" />
                   {notifications.length > 0 && (
                     <span className="absolute top-0 right-0 block h-2 w-2 bg-red-500 rounded-full transform translate-x-1 -translate-y-1"></span>
                   )}
@@ -96,7 +97,7 @@ const Layout = ({ children, currentPage, onPageChange }) => {
 
                 {/* Panel de notificaciones */}
                 {showNotifications && (
-                  <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                  <div className="absolute right-0 mt-2 w-72 sm:w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50 max-h-96 overflow-hidden">
                     <div className="p-4 border-b border-gray-200">
                       <h3 className="text-sm font-semibold text-gray-900">Notificaciones</h3>
                     </div>
@@ -146,22 +147,22 @@ const Layout = ({ children, currentPage, onPageChange }) => {
               </div>
 
               {/* Menú de usuario */}
-              <div className="flex items-center space-x-3">
-                <div className="hidden md:block text-right">
+              <div className="flex items-center space-x-2 sm:space-x-3">
+                <div className="hidden sm:block text-right">
                   <p className="text-sm font-medium text-gray-900">{user?.name}</p>
-                  <p className="text-xs text-gray-500">{user?.email}</p>
+                  <p className="text-xs text-gray-500 truncate max-w-32">{user?.email}</p>
                 </div>
                 
-                <div className="bg-green-100 rounded-full p-2">
-                  <User className="h-5 w-5 text-green-600" />
+                <div className="bg-green-100 rounded-full p-1.5 sm:p-2">
+                  <User className="h-4 w-4 sm:h-5 sm:w-5 text-green-600" />
                 </div>
                 
                 <button
                   onClick={handleLogout}
-                  className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-full focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors"
+                  className="p-1.5 sm:p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-full focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors"
                   title="Cerrar sesión"
                 >
-                  <LogOut className="h-5 w-5" />
+                  <LogOut className="h-4 w-4 sm:h-5 sm:w-5" />
                 </button>
               </div>
             </div>
@@ -215,7 +216,7 @@ const Layout = ({ children, currentPage, onPageChange }) => {
       </nav>
 
       {/* Contenido principal */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-4 sm:py-6 pt-20 sm:pt-24">
         {children}
       </main>
 
@@ -226,6 +227,9 @@ const Layout = ({ children, currentPage, onPageChange }) => {
           onClick={() => setShowNotifications(false)}
         />
       )}
+
+      {/* Banner de instalación PWA */}
+      <InstallPWA />
     </div>
   );
 };

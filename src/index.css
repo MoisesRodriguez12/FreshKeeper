@@ -5,10 +5,29 @@
 @layer base {
   html {
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
   }
   
   body {
     @apply antialiased;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    touch-action: manipulation;
+  }
+  
+  button, [role="button"] {
+    touch-action: manipulation;
+  }
+  
+  input, textarea, select {
+    font-size: 16px; /* Previene zoom en iOS */
+  }
+  
+  @media (max-width: 640px) {
+    input, textarea, select {
+      font-size: 16px !important;
+    }
   }
 }
 
@@ -56,6 +75,21 @@
   from {
     opacity: 0;
     transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-up {
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
   }
   to {
     opacity: 1;

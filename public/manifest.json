@@ -1,0 +1,48 @@
+{
+  "name": "FreshKeeper - Gestión de Alimentos",
+  "short_name": "FreshKeeper",
+  "description": "Gestiona tus alimentos y evita el desperdicio",
+  "theme_color": "#10b981",
+  "background_color": "#ffffff",
+  "display": "standalone",
+  "orientation": "portrait",
+  "scope": "/",
+  "start_url": "/",
+  "lang": "es",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/favicon.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/favicon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "Ver el panel principal",
+      "url": "/",
+      "icons": [{ "src": "/favicon.svg", "sizes": "96x96" }]
+    },
+    {
+      "name": "Añadir Producto",
+      "short_name": "Añadir",
+      "description": "Registrar nuevo producto",
+      "url": "/",
+      "icons": [{ "src": "/favicon.svg", "sizes": "96x96" }]
+    }
+  ],
+  "categories": ["food", "lifestyle", "productivity"],
+  "screenshots": []
+}
