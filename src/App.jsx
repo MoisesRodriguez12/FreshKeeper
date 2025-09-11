@@ -1,0 +1,50 @@
+import { useState } from 'react';
+import { AppProvider, useApp } from './context/AppContext';
+import Layout from './components/Layout';
+import Login from './pages/Login';
+import Dashboard from './pages/Dashboard';
+import AddProduct from './pages/AddProduct';
+import Recipes from './pages/Recipes';
+import Disposal from './pages/Disposal';
+
+const AppContent = () => {
+  const { user } = useApp();
+  const [currentPage, setCurrentPage] = useState('dashboard');
+
+  // Si no hay usuario logueado, mostrar login
+  if (!user) {
+    return <Login />;
+  }
+
+  // Renderizar página actual
+  const renderCurrentPage = () => {
+    switch (currentPage) {
+      case 'dashboard':
+        return <Dashboard />;
+      case 'add-product':
+        return <AddProduct />;
+      case 'recipes':
+        return <Recipes />;
+      case 'disposal':
+        return <Disposal />;
+      default:
+        return <Dashboard />;
+    }
+  };
+
+  return (
+    <Layout currentPage={currentPage} onPageChange={setCurrentPage}>
+      {renderCurrentPage()}
+    </Layout>
+  );
+};
+
+function App() {
+  return (
+    <AppProvider>
+      <AppContent />
+    </AppProvider>
+  );
+}
+
+export default App;
