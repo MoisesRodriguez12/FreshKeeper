@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import InstallPWA from './InstallPWA';
+import NotificationToastContainer from './NotificationToastContainer';
 import { 
   Home, 
   Plus, 
@@ -15,7 +16,7 @@ import {
 } from 'lucide-react';
 
 const Layout = ({ children, currentPage, onPageChange }) => {
-  const { user, logout, notifications, clearNotification } = useApp();
+  const { user, logout, notifications, toastNotifications, clearNotification, clearToastNotification } = useApp();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
 
@@ -29,6 +30,11 @@ const Layout = ({ children, currentPage, onPageChange }) => {
   const handleLogout = () => {
     logout();
     setIsMobileMenuOpen(false);
+  };
+
+  const handleViewProduct = () => {
+    onPageChange('dashboard');
+    setShowNotifications(false);
   };
 
   return (
@@ -230,6 +236,13 @@ const Layout = ({ children, currentPage, onPageChange }) => {
 
       {/* Banner de instalación PWA */}
       <InstallPWA />
+
+      {/* Contenedor de notificaciones toast */}
+      <NotificationToastContainer
+        notifications={toastNotifications}
+        onViewProduct={handleViewProduct}
+        onClose={clearToastNotification}
+      />
     </div>
   );
 };

@@ -1,0 +1,51 @@
+/* Estilos adicionales para notificaciones toast */
+
+/* Asegurar que las notificaciones tengan el z-index más alto */
+.notification-toast-container {
+  z-index: 9999999 !important;
+  pointer-events: none; /* Permitir clics a través del contenedor */
+}
+
+.notification-toast {
+  pointer-events: auto; /* Habilitar clics en las notificaciones */
+}
+
+/* Prevenir scroll del body cuando se arrastra una notificación en móvil */
+.notification-dragging {
+  overflow: hidden;
+}
+
+/* Efectos de vibración para dispositivos móviles */
+@media (hover: none) and (pointer: coarse) {
+  .notification-toast-mobile {
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+  }
+  
+  .notification-toast-mobile:active {
+    transform: scale(0.98);
+  }
+}
+
+/* Animaciones suaves para el deslizamiento */
+.notification-drag-transition {
+  transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Mejores sombras para móvil */
+@media (max-width: 768px) {
+  .notification-toast {
+    box-shadow: 
+      0 10px 25px rgba(0, 0, 0, 0.15),
+      0 4px 10px rgba(0, 0, 0, 0.1),
+      0 0 0 1px rgba(0, 0, 0, 0.05);
+  }
+}
+
+/* Efectos visuales para el arrastre */
+.notification-dragging .notification-toast {
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.2),
+    0 8px 16px rgba(0, 0, 0, 0.15);
+}
