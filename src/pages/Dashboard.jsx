@@ -1,9 +1,10 @@
 import { useApp } from '../context/AppContext';
 import { formatRelativeDate, getExpiryStatus, getStatusColor } from '../utils/helpers';
+import { format } from 'date-fns';
 import { AlertTriangle, Clock, Package, TrendingUp, Bell } from 'lucide-react';
 
 const Dashboard = () => {
-  const { products, getExpiringProducts, getExpiredProducts } = useApp();
+  const { products, getExpiringProducts, getExpiredProducts, addProduct } = useApp();
   
   const expiringProducts = getExpiringProducts();
   const expiredProducts = getExpiredProducts();
@@ -231,9 +232,9 @@ const Dashboard = () => {
                   
                   <p className="text-sm text-gray-600 mb-2">{product.category}</p>
                   
-                  {product.image ? (
+                  {product.photo ? (
                     <img 
-                      src={product.image} 
+                      src={product.photo} 
                       alt={product.name}
                       className="w-full h-32 object-cover rounded-md"
                     />
@@ -287,9 +288,9 @@ const Dashboard = () => {
                     <tr key={product.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
-                          {product.image ? (
+                          {product.photo ? (
                             <img 
-                              src={product.image} 
+                              src={product.photo} 
                               alt={product.name}
                               className="h-10 w-10 rounded-lg object-cover mr-3"
                             />

@@ -13,37 +13,53 @@ export const useApp = () => {
 export const AppProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [products, setProducts] = useState([
-    // Datos de ejemplo
+    // Datos de ejemplo con imágenes reales
     {
       id: 1,
       name: 'Leche entera',
-      expiryDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000), // 2 días
+      expiryDate: '2025-09-14', // 2 días desde hoy
       category: 'Lácteos',
-      image: null,
+      quantity: 1,
+      unit: 'litro',
+      location: 'Nevera',
+      addedDate: '2025-09-10',
+      photo: '/leche.jpeg',
       status: 'fresh'
     },
     {
       id: 2,
-      name: 'Manzanas',
-      expiryDate: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000), // 1 día
+      name: 'Manzanas Rojas',
+      expiryDate: '2025-09-13', // 1 día desde hoy
       category: 'Frutas',
-      image: null,
+      quantity: 6,
+      unit: 'unidades',
+      location: 'Frutero',
+      addedDate: '2025-09-08',
+      photo: '/manzanasrojas.jpg',
       status: 'ripe'
     },
     {
       id: 3,
       name: 'Pan integral',
-      expiryDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), // 3 días
+      expiryDate: '2025-09-15', // 3 días desde hoy
       category: 'Panadería',
-      image: null,
+      quantity: 1,
+      unit: 'barra',
+      location: 'Despensa',
+      addedDate: '2025-09-12',
+      photo: '/panintegral.jpg',
       status: 'fresh'
     },
     {
       id: 4,
       name: 'Yogur natural',
-      expiryDate: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), // Caducado ayer
+      expiryDate: '2025-09-11', // Caducado ayer
       category: 'Lácteos',
-      image: null,
+      quantity: 4,
+      unit: 'unidades',
+      location: 'Nevera',
+      addedDate: '2025-09-01',
+      photo: '/yogurthnatural.jpg',
       status: 'expired'
     }
   ]);
@@ -85,6 +101,23 @@ export const AppProvider = ({ children }) => {
     setToastNotifications(prev => prev.filter(n => n.product.id !== id));
     // Remover de productos notificados
     notifiedProductsRef.current.delete(id);
+  };
+
+  const markProductAsConsumed = (id) => {
+    setProducts(prev => prev.filter(product => product.id !== id));
+    // Limpiar notificaciones del producto consumido
+    setNotifications(prev => prev.filter(n => n.product.id !== id));
+    setToastNotifications(prev => prev.filter(n => n.product.id !== id));
+    // Remover de productos notificados
+    notifiedProductsRef.current.delete(id);
+    
+    // Agregar notificación de confirmación
+    setToastNotifications(prev => [...prev, {
+      id: `consumed-${Date.now()}`,
+      type: 'success',
+      message: 'Producto marcado como consumido',
+      timestamp: new Date().toISOString()
+    }]);
   };
 
   const clearNotification = (notificationId) => {
@@ -205,6 +238,7 @@ export const AppProvider = ({ children }) => {
     logout,
     addProduct,
     deleteProduct,
+    markProductAsConsumed,
     clearNotification,
     clearToastNotification,
     getExpiringProducts,

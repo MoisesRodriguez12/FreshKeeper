@@ -11,7 +11,10 @@ const AddProduct = () => {
     name: '',
     category: '',
     expiryDate: '',
-    image: null,
+    quantity: 1,
+    unit: 'unidades',
+    location: 'Despensa',
+    photo: null,
     status: 'fresh',
     customCategory: ''
   });
@@ -67,7 +70,7 @@ const AddProduct = () => {
       reader.onload = (e) => {
         const imageUrl = e.target.result;
         setImagePreview(imageUrl);
-        setFormData(prev => ({ ...prev, image: imageUrl }));
+        setFormData(prev => ({ ...prev, photo: imageUrl }));
         setErrors(prev => ({ ...prev, image: null }));
       };
       reader.readAsDataURL(file);
@@ -113,8 +116,12 @@ const AddProduct = () => {
     const productData = {
       name: formData.name.trim(),
       category: finalCategory,
-      expiryDate: new Date(formData.expiryDate),
-      image: formData.image,
+      expiryDate: formData.expiryDate,
+      quantity: parseInt(formData.quantity) || 1,
+      unit: formData.unit,
+      location: formData.location,
+      addedDate: new Date().toISOString().split('T')[0], // Fecha actual en formato YYYY-MM-DD
+      photo: formData.photo,
       status: formData.status
     };
     
@@ -125,7 +132,10 @@ const AddProduct = () => {
       name: '',
       category: '',
       expiryDate: '',
-      image: null,
+      quantity: 1,
+      unit: 'unidades',
+      location: 'Despensa',
+      photo: null,
       status: 'fresh',
       customCategory: ''
     });
@@ -168,7 +178,7 @@ const AddProduct = () => {
                     type="button"
                     onClick={() => {
                       setImagePreview(null);
-                      setFormData(prev => ({ ...prev, image: null }));
+                      setFormData(prev => ({ ...prev, photo: null }));
                     }}
                     className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
                   >
@@ -207,6 +217,71 @@ const AddProduct = () => {
                 {errors.image}
               </p>
             )}
+          </div>
+
+          {/* Cantidad y Unidad */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="quantity" className="block text-sm font-medium text-gray-700 mb-2">
+                Cantidad *
+              </label>
+              <input
+                type="number"
+                id="quantity"
+                name="quantity"
+                value={formData.quantity}
+                onChange={handleInputChange}
+                min="0.1"
+                step="0.1"
+                className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors"
+                placeholder="1"
+              />
+            </div>
+            
+            <div>
+              <label htmlFor="unit" className="block text-sm font-medium text-gray-700 mb-2">
+                Unidad *
+              </label>
+              <select
+                id="unit"
+                name="unit"
+                value={formData.unit}
+                onChange={handleInputChange}
+                className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors"
+              >
+                <option value="unidades">Unidades</option>
+                <option value="gramos">Gramos</option>
+                <option value="kilogramos">Kilogramos</option>
+                <option value="litros">Litros</option>
+                <option value="mililitros">Mililitros</option>
+                <option value="paquetes">Paquetes</option>
+                <option value="latas">Latas</option>
+                <option value="barras">Barras</option>
+                <option value="botellas">Botellas</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Ubicación */}
+          <div>
+            <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-2">
+              Ubicación *
+            </label>
+            <select
+              id="location"
+              name="location"
+              value={formData.location}
+              onChange={handleInputChange}
+              className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors"
+            >
+              <option value="Nevera">Nevera</option>
+              <option value="Congelador">Congelador</option>
+              <option value="Despensa">Despensa</option>
+              <option value="Frutero">Frutero</option>
+              <option value="Alacena">Alacena</option>
+              <option value="Bodega">Bodega</option>
+              <option value="Otro">Otro</option>
+            </select>
           </div>
 
           {/* Nombre del producto */}

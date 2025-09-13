@@ -163,3 +163,5 @@ export const getDisposalTips = (category) => {
     compost: false
   };
 };
+
+

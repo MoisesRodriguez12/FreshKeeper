@@ -5,6 +5,7 @@ import NotificationToastContainer from './NotificationToastContainer';
 import { 
   Home, 
   Plus, 
+  Package,
   ChefHat, 
   Recycle, 
   Bell, 
@@ -23,6 +24,7 @@ const Layout = ({ children, currentPage, onPageChange }) => {
   const navigation = [
     { id: 'dashboard', name: 'Dashboard', icon: Home },
     { id: 'add-product', name: 'Añadir Producto', icon: Plus },
+    { id: 'my-products', name: 'Mis Productos', icon: Package },
     { id: 'recipes', name: 'Recetas', icon: ChefHat },
     { id: 'disposal', name: 'Gestión de Residuos', icon: Recycle },
   ];
