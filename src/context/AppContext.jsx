@@ -12,6 +12,8 @@ export const useApp = () => {
 
 export const AppProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [challengeCompleted, setChallengeCompleted] = useState(false);
+  const [challengeData, setChallengeData] = useState(null);
   const [products, setProducts] = useState([
     // Datos de ejemplo con imágenes reales
     {
@@ -128,6 +130,13 @@ export const AppProvider = ({ children }) => {
     setToastNotifications(prev => prev.filter(n => n.id !== notificationId));
   };
 
+  const completeChallenge = (data) => {
+    setChallengeCompleted(true);
+    setChallengeData(data);
+    // Auto-login como usuario demo después de completar el challenge
+    setUser({ email: 'challenge@user.com', name: 'Challenge Completado' });
+  };
+
   const getExpiringProducts = useCallback(() => {
     const today = new Date();
     const threeDaysFromNow = new Date(today.getTime() + 3 * 24 * 60 * 60 * 1000);
@@ -231,6 +240,8 @@ export const AppProvider = ({ children }) => {
 
   const value = {
     user,
+    challengeCompleted,
+    challengeData,
     products,
     notifications,
     toastNotifications,
@@ -241,6 +252,7 @@ export const AppProvider = ({ children }) => {
     markProductAsConsumed,
     clearNotification,
     clearToastNotification,
+    completeChallenge,
     getExpiringProducts,
     getExpiredProducts,
   };
