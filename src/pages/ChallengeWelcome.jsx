@@ -148,56 +148,56 @@ const ChallengeWelcome = ({ onComplete }) => {
   // Step 1: Welcome
   if (step === 1) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50 flex items-center justify-center p-3 sm:p-4">
         <div className="max-w-2xl w-full">
-          <div className="bg-white rounded-2xl shadow-2xl p-8 md:p-12 text-center">
+          <div className="bg-white rounded-2xl shadow-2xl p-5 sm:p-8 md:p-12 text-center">
             <div className="mb-8">
               <div className="inline-flex items-center justify-center w-20 h-20 bg-green-100 rounded-full mb-4">
                 <ChefHat className="h-10 w-10 text-green-600" />
               </div>
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4">
                 ¡Bienvenido al Challenge! 🎉
               </h1>
-              <div className="inline-flex items-center px-4 py-2 bg-yellow-100 text-yellow-800 rounded-full text-sm font-medium mb-6">
+              <div className="inline-flex items-center px-3 sm:px-4 py-2 bg-yellow-100 text-yellow-800 rounded-full text-xs sm:text-sm font-medium mb-6">
                 <Sparkles className="h-4 w-4 mr-2" />
                 Challenge de Cocina Creativa
               </div>
             </div>
 
-            <div className="text-left space-y-6 mb-8">
-              <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-xl p-6">
-                <h2 className="text-xl font-semibold text-gray-900 mb-4">
+            <div className="text-left space-y-4 sm:space-y-6 mb-8">
+              <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-xl p-4 sm:p-6">
+                <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-3 sm:mb-4">
                   ¿De qué trata el challenge?
                 </h2>
-                <p className="text-gray-700 leading-relaxed mb-4">
+                <p className="text-sm sm:text-base text-gray-700 leading-relaxed mb-4">
                   Aprovecha los alimentos que están por caducar y crea algo delicioso. 
                   Este es tu momento para ser creativo, reducir el desperdicio y descubrir 
                   nuevas recetas.
                 </p>
               </div>
 
-              <div className="space-y-3">
-                <h3 className="font-semibold text-gray-900 flex items-center">
-                  <span className="inline-flex items-center justify-center w-6 h-6 bg-green-500 text-white rounded-full text-sm mr-2">1</span>
+              <div className="space-y-2 sm:space-y-3">
+                <h3 className="text-sm sm:text-base font-semibold text-gray-900 flex items-center">
+                  <span className="inline-flex items-center justify-center w-6 h-6 bg-green-500 text-white rounded-full text-xs sm:text-sm mr-2">1</span>
                   Agrega tus ingredientes
                 </h3>
-                <p className="text-gray-600 ml-8">
+                <p className="text-xs sm:text-sm text-gray-600 ml-8">
                   Ingresa los alimentos que tienes disponibles (mínimo 2)
                 </p>
 
-                <h3 className="font-semibold text-gray-900 flex items-center">
-                  <span className="inline-flex items-center justify-center w-6 h-6 bg-green-500 text-white rounded-full text-sm mr-2">2</span>
+                <h3 className="text-sm sm:text-base font-semibold text-gray-900 flex items-center">
+                  <span className="inline-flex items-center justify-center w-6 h-6 bg-green-500 text-white rounded-full text-xs sm:text-sm mr-2">2</span>
                   Descubre recetas con IA
                 </h3>
-                <p className="text-gray-600 ml-8">
+                <p className="text-xs sm:text-sm text-gray-600 ml-8">
                   Nuestra IA te sugerirá 2 recetas creativas basadas en tus ingredientes
                 </p>
 
-                <h3 className="font-semibold text-gray-900 flex items-center">
-                  <span className="inline-flex items-center justify-center w-6 h-6 bg-green-500 text-white rounded-full text-sm mr-2">3</span>
+                <h3 className="text-sm sm:text-base font-semibold text-gray-900 flex items-center">
+                  <span className="inline-flex items-center justify-center w-6 h-6 bg-green-500 text-white rounded-full text-xs sm:text-sm mr-2">3</span>
                   Cocina y comparte
                 </h3>
-                <p className="text-gray-600 ml-8">
+                <p className="text-xs sm:text-sm text-gray-600 ml-8">
                   Prepara la receta y sube una foto o video de tu creación
                 </p>
               </div>
@@ -205,7 +205,7 @@ const ChallengeWelcome = ({ onComplete }) => {
 
             <button
               onClick={() => setStep(2)}
-              className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:from-green-600 hover:to-green-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+              className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-semibold text-base sm:text-lg hover:from-green-600 hover:to-green-700 transition-all shadow-lg hover:shadow-xl active:scale-95"
             >
               ¡Comenzar Challenge! 🚀
             </button>
@@ -218,55 +218,56 @@ const ChallengeWelcome = ({ onComplete }) => {
   // Step 2: Add Ingredients
   if (step === 2) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50 p-4 py-8">
+      <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50 p-3 sm:p-4 py-6 sm:py-8">
         <div className="max-w-3xl mx-auto">
-          <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8">
-            <div className="text-center mb-8">
-              <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
+          <div className="bg-white rounded-2xl shadow-xl p-4 sm:p-6 md:p-8">
+            <div className="text-center mb-6 sm:mb-8">
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-2">
                 Agrega tus Ingredientes
               </h2>
-              <p className="text-gray-600">
+              <p className="text-sm sm:text-base text-gray-600">
                 Ingresa los alimentos que tienes disponibles (mínimo 2)
               </p>
             </div>
 
             {/* Input para agregar ingredientes */}
-            <div className="flex gap-2 mb-6">
+            <div className="flex gap-2 mb-4 sm:mb-6">
               <input
                 type="text"
                 value={currentIngredient}
                 onChange={(e) => setCurrentIngredient(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && addIngredient()}
-                placeholder="Ej: Manzanas, Huevos, Leche..."
-                className="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                placeholder="Ej: Manzanas, Huevos..."
+                className="flex-1 px-3 sm:px-4 py-2 sm:py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm sm:text-base"
               />
               <button
                 onClick={addIngredient}
-                className="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors font-medium flex items-center gap-2"
+                className="px-4 sm:px-6 py-2 sm:py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 active:scale-95 transition-all font-medium flex items-center gap-1 sm:gap-2 text-sm sm:text-base"
               >
-                <Plus className="h-5 w-5" />
-                Agregar
+                <Plus className="h-4 w-4 sm:h-5 sm:w-5" />
+                <span className="hidden sm:inline">Agregar</span>
+                <span className="sm:hidden">+</span>
               </button>
             </div>
 
             {/* Lista de ingredientes */}
             {ingredients.length > 0 && (
-              <div className="mb-8">
-                <h3 className="font-semibold text-gray-900 mb-3">
+              <div className="mb-6 sm:mb-8">
+                <h3 className="text-sm sm:text-base font-semibold text-gray-900 mb-3">
                   Ingredientes agregados ({ingredients.length})
                 </h3>
                 <div className="flex flex-wrap gap-2">
                   {ingredients.map((ingredient, index) => (
                     <div
                       key={index}
-                      className="inline-flex items-center gap-2 px-4 py-2 bg-green-100 text-green-800 rounded-full"
+                      className="inline-flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-green-100 text-green-800 rounded-full text-sm sm:text-base"
                     >
                       <span>{ingredient}</span>
                       <button
                         onClick={() => removeIngredient(index)}
-                        className="hover:bg-green-200 rounded-full p-0.5 transition-colors"
+                        className="hover:bg-green-200 rounded-full p-0.5 transition-colors active:scale-90"
                       >
-                        <X className="h-4 w-4" />
+                        <X className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                       </button>
                     </div>
                   ))}
@@ -275,17 +276,17 @@ const ChallengeWelcome = ({ onComplete }) => {
             )}
 
             {/* Botones de acción */}
-            <div className="flex gap-3">
+            <div className="flex gap-2 sm:gap-3">
               <button
                 onClick={() => setStep(1)}
-                className="px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                className="px-4 sm:px-6 py-2 sm:py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 active:scale-95 transition-all font-medium text-sm sm:text-base"
               >
                 Volver
               </button>
               <button
                 onClick={handleGenerateRecipes}
                 disabled={ingredients.length < 2 || loading}
-                className="flex-1 px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="flex-1 px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 active:scale-95 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm sm:text-base"
               >
                 {loading ? (
                   <>
@@ -309,19 +310,19 @@ const ChallengeWelcome = ({ onComplete }) => {
   // Step 3: Show Recipes
   if (step === 3) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50 p-4 py-8">
+      <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50 p-3 sm:p-4 py-6 sm:py-8">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-8">
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
+          <div className="text-center mb-6 sm:mb-8">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-2">
               ¡Tus Recetas Están Listas! 🎉
             </h2>
-            <p className="text-gray-600 mb-4">
+            <p className="text-sm sm:text-base text-gray-600 mb-4">
               Selecciona una receta o regenera para ver más opciones
             </p>
             <button
               onClick={handleRegenerateRecipes}
               disabled={loading}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors font-medium disabled:opacity-50"
+              className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 active:scale-95 transition-all font-medium disabled:opacity-50 text-sm sm:text-base"
             >
               <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
               {loading ? 'Regenerando...' : 'Regenerar Recetas'}
@@ -329,31 +330,31 @@ const ChallengeWelcome = ({ onComplete }) => {
           </div>
 
           {/* Grid de recetas */}
-          <div className="grid md:grid-cols-2 gap-6 mb-8">
+          <div className="grid md:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
             {recipes.map((recipe, index) => (
               <div
                 key={index}
-                className={`bg-white rounded-xl shadow-lg overflow-hidden transition-all cursor-pointer ${
+                className={`bg-white rounded-xl shadow-lg overflow-hidden transition-all cursor-pointer active:scale-[0.98] ${
                   selectedRecipe === index
-                    ? 'ring-4 ring-green-500 shadow-2xl'
+                    ? 'ring-2 sm:ring-4 ring-green-500 shadow-2xl'
                     : 'hover:shadow-xl'
                 }`}
                 onClick={() => setSelectedRecipe(selectedRecipe === index ? null : index)}
               >
-                <div className="p-6">
-                  <div className="flex items-start justify-between mb-4">
+                <div className="p-4 sm:p-6">
+                  <div className="flex items-start justify-between mb-3 sm:mb-4">
                     <div className="flex-1">
-                      <h3 className="text-xl font-bold text-gray-900 mb-2">
+                      <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">
                         {recipe.nombre}
                       </h3>
-                      <p className="text-gray-600 text-sm mb-3">
+                      <p className="text-gray-600 text-xs sm:text-sm mb-3">
                         {recipe.descripcion}
                       </p>
-                      <div className="flex flex-wrap gap-2">
-                        <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
+                      <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                        <span className="px-2 sm:px-3 py-0.5 sm:py-1 bg-blue-100 text-blue-800 rounded-full text-[10px] sm:text-xs font-medium">
                           ⏱️ {recipe.tiempo}
                         </span>
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                        <span className={`px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-medium ${
                           recipe.dificultad === 'Fácil' 
                             ? 'bg-green-100 text-green-800'
                             : recipe.dificultad === 'Media'
@@ -365,17 +366,17 @@ const ChallengeWelcome = ({ onComplete }) => {
                       </div>
                     </div>
                     {selectedRecipe === index && (
-                      <CheckCircle className="h-8 w-8 text-green-500 flex-shrink-0" />
+                      <CheckCircle className="h-6 w-6 sm:h-8 sm:w-8 text-green-500 flex-shrink-0" />
                     )}
                   </div>
 
                   {selectedRecipe === index && (
-                    <div className="mt-6 pt-6 border-t border-gray-200 space-y-4">
+                    <div className="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-gray-200 space-y-3 sm:space-y-4">
                       <div>
-                        <h4 className="font-semibold text-gray-900 mb-2">
+                        <h4 className="text-sm sm:text-base font-semibold text-gray-900 mb-2">
                           🥘 Ingredientes:
                         </h4>
-                        <ul className="list-disc list-inside space-y-1 text-sm text-gray-700">
+                        <ul className="list-disc list-inside space-y-1 text-xs sm:text-sm text-gray-700">
                           {recipe.ingredientes.map((ing, i) => (
                             <li key={i}>{ing}</li>
                           ))}
@@ -383,12 +384,12 @@ const ChallengeWelcome = ({ onComplete }) => {
                       </div>
 
                       <div>
-                        <h4 className="font-semibold text-gray-900 mb-2">
+                        <h4 className="text-sm sm:text-base font-semibold text-gray-900 mb-2">
                           👨‍🍳 Preparación:
                         </h4>
                         <ol className="space-y-2">
                           {recipe.pasos.map((paso, i) => (
-                            <li key={i} className="text-sm text-gray-700">
+                            <li key={i} className="text-xs sm:text-sm text-gray-700">
                               <span className="font-medium text-green-600">
                                 Paso {i + 1}:
                               </span>{' '}
@@ -423,34 +424,34 @@ const ChallengeWelcome = ({ onComplete }) => {
   // Step 4: Upload Photo/Video
   if (step === 4) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50 p-4 py-8">
+      <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50 p-3 sm:p-4 py-6 sm:py-8">
         <div className="max-w-2xl mx-auto">
-          <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8">
-            <div className="text-center mb-8">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
-                <Upload className="h-8 w-8 text-green-600" />
+          <div className="bg-white rounded-2xl shadow-xl p-4 sm:p-6 md:p-8">
+            <div className="text-center mb-6 sm:mb-8">
+              <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-green-100 rounded-full mb-3 sm:mb-4">
+                <Upload className="h-6 w-6 sm:h-8 sm:w-8 text-green-600" />
               </div>
-              <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-2">
                 ¡Muestra tu Creación! 📸
               </h2>
-              <p className="text-gray-600">
+              <p className="text-sm sm:text-base text-gray-600">
                 Sube una foto o video de tu plato terminado
               </p>
             </div>
 
             {/* Área de upload */}
-            <div className="mb-6">
+            <div className="mb-4 sm:mb-6">
               {!filePreview ? (
                 <label className="block cursor-pointer">
-                  <div className="border-2 border-dashed border-gray-300 rounded-xl p-12 text-center hover:border-green-500 hover:bg-green-50 transition-all">
-                    <div className="flex justify-center mb-4">
-                      <ImageIcon className="h-12 w-12 text-gray-400" />
-                      <Video className="h-12 w-12 text-gray-400 ml-4" />
+                  <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 sm:p-12 text-center hover:border-green-500 hover:bg-green-50 active:scale-[0.99] transition-all">
+                    <div className="flex justify-center mb-3 sm:mb-4">
+                      <ImageIcon className="h-10 w-10 sm:h-12 sm:w-12 text-gray-400" />
+                      <Video className="h-10 w-10 sm:h-12 sm:w-12 text-gray-400 ml-3 sm:ml-4" />
                     </div>
-                    <p className="text-gray-700 font-medium mb-2">
+                    <p className="text-sm sm:text-base text-gray-700 font-medium mb-1 sm:mb-2">
                       Haz clic para seleccionar
                     </p>
-                    <p className="text-gray-500 text-sm">
+                    <p className="text-xs sm:text-sm text-gray-500">
                       Foto o Video (máx. 10MB)
                     </p>
                   </div>
@@ -467,13 +468,13 @@ const ChallengeWelcome = ({ onComplete }) => {
                     <img
                       src={filePreview}
                       alt="Preview"
-                      className="w-full h-64 object-cover rounded-xl"
+                      className="w-full h-48 sm:h-64 object-cover rounded-xl"
                     />
                   ) : (
                     <video
                       src={filePreview}
                       controls
-                      className="w-full h-64 rounded-xl bg-black"
+                      className="w-full h-48 sm:h-64 rounded-xl bg-black"
                     />
                   )}
                   <button
@@ -481,17 +482,17 @@ const ChallengeWelcome = ({ onComplete }) => {
                       setUploadedFile(null);
                       setFilePreview(null);
                     }}
-                    className="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+                    className="absolute top-2 right-2 p-1.5 sm:p-2 bg-red-500 text-white rounded-full hover:bg-red-600 active:scale-90 transition-all shadow-lg"
                   >
-                    <X className="h-5 w-5" />
+                    <X className="h-4 w-4 sm:h-5 sm:w-5" />
                   </button>
                 </div>
               )}
             </div>
 
             {/* Campo de nombre */}
-            <div className="mb-4">
-              <label htmlFor="userName" className="block text-sm font-medium text-gray-700 mb-2">
+            <div className="mb-3 sm:mb-4">
+              <label htmlFor="userName" className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
                 Tu nombre <span className="text-gray-400 text-xs">(opcional)</span>
               </label>
               <input
@@ -499,59 +500,59 @@ const ChallengeWelcome = ({ onComplete }) => {
                 id="userName"
                 value={userName}
                 onChange={(e) => setUserName(e.target.value)}
-                placeholder="Ej: María García (o déjalo vacío para ser Anónimo)"
-                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                placeholder="Ej: María García"
+                className="w-full px-3 sm:px-4 py-2 sm:py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm sm:text-base"
                 maxLength={50}
               />
             </div>
 
             {/* Campo de comentarios */}
-            <div className="mb-6">
-              <label htmlFor="userComment" className="block text-sm font-medium text-gray-700 mb-2">
+            <div className="mb-4 sm:mb-6">
+              <label htmlFor="userComment" className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
                 Comentario <span className="text-gray-400 text-xs">(opcional)</span>
               </label>
               <textarea
                 id="userComment"
                 value={userComment}
                 onChange={(e) => setUserComment(e.target.value)}
-                placeholder="Cuenta cómo te quedó la receta, qué cambios le hiciste, etc..."
+                placeholder="Cuenta cómo te quedó la receta..."
                 rows={3}
-                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none"
+                className="w-full px-3 sm:px-4 py-2 sm:py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none text-sm sm:text-base"
                 maxLength={500}
               />
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-[10px] sm:text-xs text-gray-500 mt-1">
                 {userComment.length}/500 caracteres
               </p>
             </div>
 
             {/* Progress bar */}
             {loading && uploadProgress > 0 && (
-              <div className="mb-6">
+              <div className="mb-4 sm:mb-6">
                 <div className="w-full bg-gray-200 rounded-full h-2">
                   <div
                     className="bg-green-500 h-2 rounded-full transition-all duration-300"
                     style={{ width: `${uploadProgress}%` }}
                   />
                 </div>
-                <p className="text-center text-sm text-gray-600 mt-2">
+                <p className="text-center text-xs sm:text-sm text-gray-600 mt-2">
                   Subiendo... {uploadProgress}%
                 </p>
               </div>
             )}
 
             {/* Botones */}
-            <div className="flex gap-3">
+            <div className="flex gap-2 sm:gap-3">
               <button
                 onClick={() => setStep(3)}
                 disabled={loading}
-                className="px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium disabled:opacity-50"
+                className="px-4 sm:px-6 py-2 sm:py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 active:scale-95 transition-all font-medium disabled:opacity-50 text-sm sm:text-base"
               >
                 Volver
               </button>
               <button
                 onClick={handleUploadFile}
                 disabled={!uploadedFile || loading}
-                className="flex-1 px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="flex-1 px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 active:scale-95 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm sm:text-base"
               >
                 {loading ? (
                   <>
@@ -575,16 +576,16 @@ const ChallengeWelcome = ({ onComplete }) => {
   // Step 5: Gallery
   if (step === 5) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50 p-4 py-8">
+      <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50 p-3 sm:p-4 py-6 sm:py-8">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-purple-100 rounded-full mb-4">
-              <Eye className="h-8 w-8 text-purple-600" />
+          <div className="text-center mb-6 sm:mb-8">
+            <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-purple-100 rounded-full mb-3 sm:mb-4">
+              <Eye className="h-6 w-6 sm:h-8 sm:w-8 text-purple-600" />
             </div>
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-2">
               ¡Galería de Creaciones! 🎨
             </h2>
-            <p className="text-gray-600 mb-4">
+            <p className="text-sm sm:text-base text-gray-600 mb-4">
               Mira lo que otros han cocinado en el challenge
             </p>
             <button
@@ -610,7 +611,7 @@ const ChallengeWelcome = ({ onComplete }) => {
                 }
               }}
               disabled={loading}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors font-medium disabled:opacity-50"
+              className="inline-flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 active:scale-95 transition-all font-medium disabled:opacity-50 text-sm sm:text-base"
             >
               <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
               {loading ? 'Cargando...' : galleryItems.length === 0 ? 'Cargar Creaciones' : 'Actualizar'}
@@ -619,14 +620,14 @@ const ChallengeWelcome = ({ onComplete }) => {
 
           {/* Grid de galería */}
           {galleryItems.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
               {galleryItems.map((item) => (
                 <div
                   key={item.id}
-                  className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all"
+                  className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl active:scale-[0.98] transition-all"
                 >
                   {/* Imagen o video */}
-                  <div className="relative h-64 bg-gray-100">
+                  <div className="relative h-48 sm:h-56 md:h-64 bg-gray-100">
                     {item.fileType === 'image' ? (
                       <img
                         src={item.fileUrl}
@@ -643,42 +644,42 @@ const ChallengeWelcome = ({ onComplete }) => {
                   </div>
 
                   {/* Información */}
-                  <div className="p-4">
-                    <h3 className="font-bold text-lg text-gray-900 mb-2">
+                  <div className="p-3 sm:p-4">
+                    <h3 className="font-bold text-base sm:text-lg text-gray-900 mb-2">
                       {item.recipeName}
                     </h3>
-                    <p className="text-sm text-gray-600 mb-3">
+                    <p className="text-xs sm:text-sm text-gray-600 mb-2 sm:mb-3">
                       Por: <span className="font-medium text-green-600">{item.userName || 'Anónimo'}</span>
                     </p>
                     
                     {/* Comentario del usuario */}
                     {item.userComment && (
-                      <div className="mb-3 p-3 bg-blue-50 rounded-lg border border-blue-100">
-                        <p className="text-sm text-gray-700 italic">
+                      <div className="mb-2 sm:mb-3 p-2 sm:p-3 bg-blue-50 rounded-lg border border-blue-100">
+                        <p className="text-xs sm:text-sm text-gray-700 italic line-clamp-3">
                           "{item.userComment}"
                         </p>
                       </div>
                     )}
                     
                     {/* Ingredientes */}
-                    <div className="flex flex-wrap gap-1 mb-3">
+                    <div className="flex flex-wrap gap-1 mb-2 sm:mb-3">
                       {item.ingredients?.slice(0, 3).map((ing, i) => (
                         <span
                           key={i}
-                          className="px-2 py-1 bg-green-50 text-green-700 rounded-full text-xs"
+                          className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-green-50 text-green-700 rounded-full text-[10px] sm:text-xs"
                         >
                           {ing}
                         </span>
                       ))}
                       {item.ingredients?.length > 3 && (
-                        <span className="px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs">
+                        <span className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-gray-100 text-gray-600 rounded-full text-[10px] sm:text-xs">
                           +{item.ingredients.length - 3} más
                         </span>
                       )}
                     </div>
 
                     {/* Fecha */}
-                    <p className="text-xs text-gray-500">
+                    <p className="text-[10px] sm:text-xs text-gray-500">
                       {new Date(item.createdAt).toLocaleDateString('es-ES', {
                         day: 'numeric',
                         month: 'long',
@@ -691,14 +692,14 @@ const ChallengeWelcome = ({ onComplete }) => {
             </div>
           ) : (
             !loading && (
-              <div className="text-center py-12">
-                <div className="inline-flex items-center justify-center w-20 h-20 bg-gray-100 rounded-full mb-4">
-                  <ImageIcon className="h-10 w-10 text-gray-400" />
+              <div className="text-center py-8 sm:py-12 px-4">
+                <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-gray-100 rounded-full mb-3 sm:mb-4">
+                  <ImageIcon className="h-8 w-8 sm:h-10 sm:w-10 text-gray-400" />
                 </div>
-                <p className="text-gray-600 mb-4">
+                <p className="text-sm sm:text-base text-gray-600 mb-3 sm:mb-4">
                   Aún no hay creaciones en la galería
                 </p>
-                <p className="text-sm text-gray-500">
+                <p className="text-xs sm:text-sm text-gray-500">
                   Haz clic en "Cargar Creaciones" para ver las recetas de otros usuarios
                 </p>
               </div>
@@ -706,7 +707,7 @@ const ChallengeWelcome = ({ onComplete }) => {
           )}
 
           {/* Botón para completar */}
-          <div className="text-center">
+          <div className="text-center px-4">
             <button
               onClick={() => {
                 onComplete({
@@ -715,7 +716,7 @@ const ChallengeWelcome = ({ onComplete }) => {
                   userName
                 });
               }}
-              className="px-8 py-4 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl font-semibold text-lg hover:from-green-600 hover:to-green-700 transition-all shadow-lg hover:shadow-xl"
+              className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl font-semibold text-base sm:text-lg hover:from-green-600 hover:to-green-700 active:scale-95 transition-all shadow-lg hover:shadow-xl"
             >
               Completar Challenge y Explorar App 🚀
             </button>
