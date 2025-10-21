@@ -4,6 +4,7 @@ import { generateRecipes } from '../config/gemini';
 import { storage, db } from '../config/firebase';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { collection, addDoc, getDocs, query, orderBy, limit } from 'firebase/firestore';
+import { validarIngrediente, validarComentario, obtenerSugerencias } from '../utils/contentValidation';
 
 const ChallengeWelcome = ({ onComplete }) => {
   const [step, setStep] = useState(1); // 1: Welcome, 2: Add ingredients, 3: Recipes, 4: Upload, 5: Gallery
@@ -18,16 +19,55 @@ const ChallengeWelcome = ({ onComplete }) => {
   const [galleryItems, setGalleryItems] = useState([]);
   const [userName, setUserName] = useState('');
   const [userComment, setUserComment] = useState('');
+  const [sugerencias, setSugerencias] = useState([]);
 
   const addIngredient = () => {
-    if (currentIngredient.trim() && !ingredients.includes(currentIngredient.trim())) {
-      setIngredients([...ingredients, currentIngredient.trim()]);
-      setCurrentIngredient('');
+    const ingredienteTrimmed = currentIngredient.trim();
+    
+    if (!ingredienteTrimmed) {
+      return;
     }
+    
+    // Verificar si ya existe
+    if (ingredients.includes(ingredienteTrimmed)) {
+      alert('Este ingrediente ya está en tu lista');
+      return;
+    }
+    
+    // Validar el ingrediente
+    const validacion = validarIngrediente(ingredienteTrimmed);
+    
+    if (!validacion.valido) {
+      alert(validacion.error);
+      return;
+    }
+    
+    // Agregar si es válido
+    setIngredients([...ingredients, validacion.ingrediente]);
+    setCurrentIngredient('');
+    setSugerencias([]);
   };
 
   const removeIngredient = (index) => {
     setIngredients(ingredients.filter((_, i) => i !== index));
+  };
+
+  const handleIngredientChange = (e) => {
+    const valor = e.target.value;
+    setCurrentIngredient(valor);
+    
+    // Mostrar sugerencias mientras escribe
+    if (valor.length >= 2) {
+      const sugerenciasObtenidas = obtenerSugerencias(valor);
+      setSugerencias(sugerenciasObtenidas);
+    } else {
+      setSugerencias([]);
+    }
+  };
+
+  const seleccionarSugerencia = (sugerencia) => {
+    setCurrentIngredient(sugerencia);
+    setSugerencias([]);
   };
 
   const handleGenerateRecipes = async () => {
@@ -95,6 +135,15 @@ const ChallengeWelcome = ({ onComplete }) => {
     if (!uploadedFile) {
       alert('Por favor selecciona una foto o video');
       return;
+    }
+
+    // Validar comentario si hay contenido
+    if (userComment.trim()) {
+      const validacionComentario = validarComentario(userComment);
+      if (!validacionComentario.valido) {
+        alert(validacionComentario.error);
+        return;
+      }
     }
 
     // Nombre ahora es opcional
@@ -225,29 +274,51 @@ const ChallengeWelcome = ({ onComplete }) => {
               <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-2">
                 Agrega tus Ingredientes
               </h2>
-              <p className="text-sm sm:text-base text-gray-600">
+              <p className="text-sm sm:text-base text-gray-600 mb-3">
                 Ingresa los alimentos que tienes disponibles (mínimo 2)
               </p>
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 border border-blue-200 rounded-lg text-xs sm:text-sm text-blue-700">
+                <Sparkles className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                <span>Escribe ingredientes y verás sugerencias automáticas</span>
+              </div>
             </div>
 
             {/* Input para agregar ingredientes */}
-            <div className="flex gap-2 mb-4 sm:mb-6">
-              <input
-                type="text"
-                value={currentIngredient}
-                onChange={(e) => setCurrentIngredient(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && addIngredient()}
-                placeholder="Ej: Manzanas, Huevos..."
-                className="flex-1 px-3 sm:px-4 py-2 sm:py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm sm:text-base"
-              />
-              <button
-                onClick={addIngredient}
-                className="px-4 sm:px-6 py-2 sm:py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 active:scale-95 transition-all font-medium flex items-center gap-1 sm:gap-2 text-sm sm:text-base"
-              >
-                <Plus className="h-4 w-4 sm:h-5 sm:w-5" />
-                <span className="hidden sm:inline">Agregar</span>
-                <span className="sm:hidden">+</span>
-              </button>
+            <div className="relative mb-4 sm:mb-6">
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={currentIngredient}
+                  onChange={handleIngredientChange}
+                  onKeyPress={(e) => e.key === 'Enter' && addIngredient()}
+                  placeholder="Ej: Manzanas, Huevos..."
+                  className="flex-1 px-3 sm:px-4 py-2 sm:py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm sm:text-base"
+                  autoComplete="off"
+                />
+                <button
+                  onClick={addIngredient}
+                  className="px-4 sm:px-6 py-2 sm:py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 active:scale-95 transition-all font-medium flex items-center gap-1 sm:gap-2 text-sm sm:text-base"
+                >
+                  <Plus className="h-4 w-4 sm:h-5 sm:w-5" />
+                  <span className="hidden sm:inline">Agregar</span>
+                  <span className="sm:hidden">+</span>
+                </button>
+              </div>
+              
+              {/* Sugerencias de autocompletado */}
+              {sugerencias.length > 0 && (
+                <div className="absolute z-10 w-full mt-1 bg-white border-2 border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                  {sugerencias.map((sugerencia, index) => (
+                    <button
+                      key={index}
+                      onClick={() => seleccionarSugerencia(sugerencia)}
+                      className="w-full text-left px-4 py-2 hover:bg-green-50 transition-colors text-sm sm:text-base text-gray-700 capitalize"
+                    >
+                      {sugerencia}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Lista de ingredientes */}
