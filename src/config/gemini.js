@@ -18,7 +18,7 @@ const genAI = new GoogleGenerativeAI(API_KEY);
 // - "gemini-1.5-flash" (más rápido, recomendado)
 // - "gemini-pro" (alternativa)
 export const getGeminiModel = () => {
-  return genAI.getGenerativeModel({ model: "gemini-2.5-flash", tem});
+  return genAI.getGenerativeModel({ model: "gemini-2.5-flash"});
 };
 
 // Función para generar recetas basadas en ingredientes
