@@ -22,19 +22,21 @@ export const getGeminiModel = () => {
 };
 
 // Función para generar recetas basadas en ingredientes
-export const generateRecipes = async (ingredients) => {
+export const generateRecipes = async (ingredients, numPersonas = 2) => {
   try {
     const model = getGeminiModel();
     
     const prompt = `Eres un chef experto. Genera exactamente 2 recetas diferentes y creativas usando estos ingredientes: ${ingredients.join(', ')}, puedes agregar ingedientes pero intenta solo usar los anteriores.
     Recomienda solo recetas faciles de menos de 15 minutos y sin procedimientos complicados.
+    
+IMPORTANTE: Las recetas deben ser para ${numPersonas} ${numPersonas === 1 ? 'persona' : 'personas'}. Ajusta las cantidades de ingredientes en consecuencia.
 
 Para cada receta proporciona:
 1. Nombre de la receta (máximo 50 caracteres)
 2. Tiempo de preparación estimado
 3. Dificultad (Fácil)
 4. Descripción breve (máximo 300 caracteres)
-5. Lista de ingredientes con cantidades
+5. Lista de ingredientes con cantidades específicas para ${numPersonas} ${numPersonas === 1 ? 'persona' : 'personas'}
 6. Pasos detallados de preparación numerados
 
 Formato JSON exacto:
@@ -46,7 +48,8 @@ Formato JSON exacto:
       "dificultad": "Fácil",
       "descripcion": "Descripción breve",
       "ingredientes": ["ingrediente 1", "ingrediente 2"],
-      "pasos": ["Paso 1", "Paso 2", "Paso 3"]
+      "pasos": ["Paso 1", "Paso 2", "Paso 3"],
+      "porciones": ${numPersonas}
     }
   ]
 }

@@ -20,6 +20,7 @@ const ChallengeWelcome = ({ onComplete }) => {
   const [userName, setUserName] = useState('');
   const [userComment, setUserComment] = useState('');
   const [sugerencias, setSugerencias] = useState([]);
+  const [numPersonas, setNumPersonas] = useState(2); // Número de personas por defecto
 
   const addIngredient = () => {
     const ingredienteTrimmed = currentIngredient.trim();
@@ -78,7 +79,7 @@ const ChallengeWelcome = ({ onComplete }) => {
 
     setLoading(true);
     try {
-      const generatedRecipes = await generateRecipes(ingredients);
+      const generatedRecipes = await generateRecipes(ingredients, numPersonas);
       setRecipes(generatedRecipes);
       setStep(3);
     } catch (error) {
@@ -93,7 +94,7 @@ const ChallengeWelcome = ({ onComplete }) => {
     setLoading(true);
     setSelectedRecipe(null);
     try {
-      const generatedRecipes = await generateRecipes(ingredients);
+      const generatedRecipes = await generateRecipes(ingredients, numPersonas);
       setRecipes(generatedRecipes);
     } catch (error) {
       alert(error.message || 'Error al regenerar recetas');
@@ -323,7 +324,7 @@ const ChallengeWelcome = ({ onComplete }) => {
 
             {/* Lista de ingredientes */}
             {ingredients.length > 0 && (
-              <div className="mb-6 sm:mb-8">
+              <div className="mb-4 sm:mb-6">
                 <h3 className="text-sm sm:text-base font-semibold text-gray-900 mb-3">
                   Ingredientes agregados ({ingredients.length})
                 </h3>
@@ -345,6 +346,42 @@ const ChallengeWelcome = ({ onComplete }) => {
                 </div>
               </div>
             )}
+
+            {/* Selector de número de personas */}
+            <div className="mb-6 sm:mb-8">
+              <label className="block text-sm sm:text-base font-semibold text-gray-900 mb-3">
+                ¿Para cuántas personas? 👥
+              </label>
+              <div className="flex items-center gap-3 sm:gap-4">
+                <button
+                  onClick={() => setNumPersonas(Math.max(1, numPersonas - 1))}
+                  disabled={numPersonas <= 1}
+                  className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center bg-gray-100 hover:bg-gray-200 disabled:bg-gray-50 disabled:text-gray-300 rounded-lg transition-colors active:scale-95 text-lg sm:text-xl font-bold"
+                >
+                  −
+                </button>
+                
+                <div className="flex-1 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg px-4 sm:px-6 py-3 sm:py-4 text-center">
+                  <div className="text-2xl sm:text-3xl font-bold text-gray-900">
+                    {numPersonas}
+                  </div>
+                  <div className="text-xs sm:text-sm text-gray-600 mt-1">
+                    {numPersonas === 1 ? 'persona' : 'personas'}
+                  </div>
+                </div>
+                
+                <button
+                  onClick={() => setNumPersonas(Math.min(12, numPersonas + 1))}
+                  disabled={numPersonas >= 12}
+                  className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center bg-green-500 hover:bg-green-600 disabled:bg-gray-50 disabled:text-gray-300 text-white rounded-lg transition-colors active:scale-95 text-lg sm:text-xl font-bold"
+                >
+                  +
+                </button>
+              </div>
+              <p className="text-xs sm:text-sm text-gray-500 mt-2 text-center">
+                Las recetas se ajustarán automáticamente para {numPersonas} {numPersonas === 1 ? 'persona' : 'personas'}
+              </p>
+            </div>
 
             {/* Botones de acción */}
             <div className="flex gap-2 sm:gap-3">
@@ -387,9 +424,13 @@ const ChallengeWelcome = ({ onComplete }) => {
             <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-2">
               ¡Tus Recetas Están Listas! 🎉
             </h2>
-            <p className="text-sm sm:text-base text-gray-600 mb-4">
+            <p className="text-sm sm:text-base text-gray-600 mb-3">
               Selecciona una receta o regenera para ver más opciones
             </p>
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-purple-100 border border-purple-200 rounded-lg text-xs sm:text-sm text-purple-700 mb-4">
+              <span>👥</span>
+              <span>Recetas para {numPersonas} {numPersonas === 1 ? 'persona' : 'personas'}</span>
+            </div>
             <button
               onClick={handleRegenerateRecipes}
               disabled={loading}
