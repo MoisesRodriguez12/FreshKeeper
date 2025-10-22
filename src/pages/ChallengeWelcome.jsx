@@ -206,7 +206,7 @@ const ChallengeWelcome = ({ onComplete }) => {
                 <ChefHat className="h-10 w-10 text-green-600" />
               </div>
               <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                ¡Bienvenido al Challenge! 🎉
+                ¡Bienvenido al FreshCooking Challenge! 🎉
               </h1>
               <div className="inline-flex items-center px-3 sm:px-4 py-2 bg-yellow-100 text-yellow-800 rounded-full text-xs sm:text-sm font-medium mb-6">
                 <Sparkles className="h-4 w-4 mr-2" />
