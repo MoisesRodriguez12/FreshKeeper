@@ -13,7 +13,8 @@ import {
   LogOut, 
   Menu, 
   X,
-  Leaf
+  Leaf,
+  Eye
 } from 'lucide-react';
 
 const Layout = ({ children, currentPage, onPageChange }) => {
@@ -26,6 +27,7 @@ const Layout = ({ children, currentPage, onPageChange }) => {
     { id: 'add-product', name: 'Añadir Producto', icon: Plus },
     { id: 'my-products', name: 'Mis Productos', icon: Package },
     { id: 'recipes', name: 'Recetas', icon: ChefHat },
+    { id: 'gallery', name: 'Galería', icon: Eye },
     { id: 'disposal', name: 'Gestión de Residuos', icon: Recycle },
   ];
 

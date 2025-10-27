@@ -32,3 +32,11 @@ dist-ssr
 # Google Cloud credentials (NO se necesitan para AI Studio)
 *-client-*.json
 gen-lang-client-*.json
+
+# Firebase Admin Service Account (para scripts de descarga)
+serviceAccountKey.json
+*-firebase-adminsdk-*.json
+
+# Archivos descargados
+downloads/
+downloads/**/*
