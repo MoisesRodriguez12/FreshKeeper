@@ -1,34 +1,22 @@
-import { useState, useRef } from 'react';
+﻿import { useState, useRef } from 'react';
 import { useApp } from '../context/AppContext';
-import { Camera, Upload, Plus, Calendar, Package, Tag, AlertCircle } from 'lucide-react';
-import { getFreshnesOptions } from '../utils/helpers';
+import { Camera, Upload, Plus, Calendar, AlertCircle, CheckCircle } from 'lucide-react';
+import productService from '../services/productService';
 
 const AddProduct = () => {
-  const { addProduct } = useApp();
+  const { user } = useApp();
   const fileInputRef = useRef(null);
   
   const [formData, setFormData] = useState({
     name: '',
-    category: '',
-    expiryDate: '',
-    quantity: 1,
-    unit: 'unidades',
-    location: 'Despensa',
-    photo: null,
-    status: 'fresh',
-    customCategory: ''
+    expiryDate: ''
   });
   
-  const [showFreshnessOptions, setShowFreshnessOptions] = useState(false);
+  const [imageFile, setImageFile] = useState(null); // Guardar archivo real en vez de base64
   const [imagePreview, setImagePreview] = useState(null);
   const [errors, setErrors] = useState({});
-
-  const categories = [
-    'Frutas', 'Verduras', 'Lácteos', 'Carnes', 'Pescados', 'Panadería', 
-    'Conservas', 'Congelados', 'Bebidas', 'Snacks', 'Otros'
-  ];
-
-  const freshnessOptions = getFreshnesOptions();
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState('');
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -37,15 +25,6 @@ const AddProduct = () => {
       [name]: value
     }));
     
-    // Mostrar opciones de frescura para frutas y verduras
-    if (name === 'category' && (value === 'Frutas' || value === 'Verduras')) {
-      setShowFreshnessOptions(true);
-    } else if (name === 'category') {
-      setShowFreshnessOptions(false);
-      setFormData(prev => ({ ...prev, status: 'fresh' }));
-    }
-    
-    // Limpiar errores cuando el usuario empiece a escribir
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: null }));
     }
@@ -54,24 +33,24 @@ const AddProduct = () => {
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
-      // Validar que sea una imagen
       if (!file.type.startsWith('image/')) {
-        setErrors(prev => ({ ...prev, image: 'Por favor selecciona una imagen válida' }));
+        setErrors(prev => ({ ...prev, photo: 'Por favor selecciona una imagen válida' }));
         return;
       }
       
-      // Validar tamaño (máx 5MB)
       if (file.size > 5 * 1024 * 1024) {
-        setErrors(prev => ({ ...prev, image: 'La imagen debe ser menor a 5MB' }));
+        setErrors(prev => ({ ...prev, photo: 'La imagen debe ser menor a 5MB' }));
         return;
       }
       
+      // Guardar archivo real
+      setImageFile(file);
+      
+      // Crear preview
       const reader = new FileReader();
       reader.onload = (e) => {
-        const imageUrl = e.target.result;
-        setImagePreview(imageUrl);
-        setFormData(prev => ({ ...prev, photo: imageUrl }));
-        setErrors(prev => ({ ...prev, image: null }));
+        setImagePreview(e.target.result);
+        setErrors(prev => ({ ...prev, photo: null }));
       };
       reader.readAsDataURL(file);
     }
@@ -84,13 +63,8 @@ const AddProduct = () => {
       newErrors.name = 'El nombre del producto es obligatorio';
     }
     
-    if (!formData.category && !formData.customCategory) {
-      newErrors.category = 'Selecciona o escribe una categoría';
-    }
-    
-    if (!formData.expiryDate) {
-      newErrors.expiryDate = 'La fecha de caducidad es obligatoria';
-    } else {
+    // La fecha ahora es opcional - se calculará automáticamente si no se proporciona
+    if (formData.expiryDate) {
       const selectedDate = new Date(formData.expiryDate);
       const today = new Date();
       today.setHours(0, 0, 0, 0);
@@ -104,47 +78,50 @@ const AddProduct = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (!validateForm()) {
       return;
     }
+
+    if (!user) {
+      setErrors({ general: 'Debes iniciar sesión para agregar productos' });
+      return;
+    }
     
-    const finalCategory = formData.customCategory || formData.category;
-    
-    const productData = {
-      name: formData.name.trim(),
-      category: finalCategory,
-      expiryDate: formData.expiryDate,
-      quantity: parseInt(formData.quantity) || 1,
-      unit: formData.unit,
-      location: formData.location,
-      addedDate: new Date().toISOString().split('T')[0], // Fecha actual en formato YYYY-MM-DD
-      photo: formData.photo,
-      status: formData.status
-    };
-    
-    addProduct(productData);
-    
-    // Resetear formulario
-    setFormData({
-      name: '',
-      category: '',
-      expiryDate: '',
-      quantity: 1,
-      unit: 'unidades',
-      location: 'Despensa',
-      photo: null,
-      status: 'fresh',
-      customCategory: ''
-    });
-    setImagePreview(null);
-    setShowFreshnessOptions(false);
+    setLoading(true);
+    setSuccess('');
     setErrors({});
     
-    // Mostrar mensaje de éxito (podrías usar un toast aquí)
-    alert('Producto añadido exitosamente');
+    const productData = {
+      name: formData.name.trim()
+    };
+    
+    // Solo agregar expiryDate si el usuario la proporcionó
+    if (formData.expiryDate) {
+      productData.expiryDate = formData.expiryDate;
+    }
+    
+    // Pasar el archivo de imagen separadamente
+    const result = await productService.addProduct(user.uid, productData, imageFile);
+    
+    setLoading(false);
+    
+    if (result.success) {
+      setSuccess(`¡Producto "${result.product.name}" añadido en categoría "${result.product.category}"!`);
+      
+      setFormData({
+        name: '',
+        expiryDate: ''
+      });
+      setImageFile(null);
+      setImagePreview(null);
+      
+      setTimeout(() => setSuccess(''), 3000);
+    } else {
+      setErrors({ general: result.error });
+    }
   };
 
   const triggerFileInput = () => {
@@ -160,13 +137,12 @@ const AddProduct = () => {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Imagen del producto */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Imagen del producto (opcional)
+              Foto del producto (opcional)
             </label>
             
-            <div className="flex space-x-4">
+            <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4">
               {imagePreview ? (
                 <div className="relative">
                   <img 
@@ -178,18 +154,20 @@ const AddProduct = () => {
                     type="button"
                     onClick={() => {
                       setImagePreview(null);
-                      setFormData(prev => ({ ...prev, photo: null }));
+                      setImageFile(null);
                     }}
-                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors"
                   >
                     ×
                   </button>
                 </div>
               ) : (
-                <div className="h-32 w-32 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center hover:border-green-400 transition-colors cursor-pointer"
-                     onClick={triggerFileInput}>
+                <div 
+                  className="h-32 w-32 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center hover:border-green-400 transition-colors cursor-pointer"
+                  onClick={triggerFileInput}
+                >
                   <Upload className="h-6 w-6 text-gray-400 mb-1" />
-                  <span className="text-xs text-gray-500">Subir imagen</span>
+                  <span className="text-xs text-gray-500 text-center px-2">Click para subir</span>
                 </div>
               )}
               
@@ -211,188 +189,42 @@ const AddProduct = () => {
               className="hidden"
             />
             
-            {errors.image && (
-              <p className="mt-1 text-sm text-red-600 flex items-center">
+            {errors.photo && (
+              <p className="mt-2 text-sm text-red-600 flex items-center">
                 <AlertCircle className="h-4 w-4 mr-1" />
-                {errors.image}
+                {errors.photo}
               </p>
             )}
           </div>
 
-          {/* Cantidad y Unidad */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="quantity" className="block text-sm font-medium text-gray-700 mb-2">
-                Cantidad *
-              </label>
-              <input
-                type="number"
-                id="quantity"
-                name="quantity"
-                value={formData.quantity}
-                onChange={handleInputChange}
-                min="0.1"
-                step="0.1"
-                className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors"
-                placeholder="1"
-              />
-            </div>
-            
-            <div>
-              <label htmlFor="unit" className="block text-sm font-medium text-gray-700 mb-2">
-                Unidad *
-              </label>
-              <select
-                id="unit"
-                name="unit"
-                value={formData.unit}
-                onChange={handleInputChange}
-                className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors"
-              >
-                <option value="unidades">Unidades</option>
-                <option value="gramos">Gramos</option>
-                <option value="kilogramos">Kilogramos</option>
-                <option value="litros">Litros</option>
-                <option value="mililitros">Mililitros</option>
-                <option value="paquetes">Paquetes</option>
-                <option value="latas">Latas</option>
-                <option value="barras">Barras</option>
-                <option value="botellas">Botellas</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Ubicación */}
-          <div>
-            <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-2">
-              Ubicación *
-            </label>
-            <select
-              id="location"
-              name="location"
-              value={formData.location}
-              onChange={handleInputChange}
-              className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors"
-            >
-              <option value="Nevera">Nevera</option>
-              <option value="Congelador">Congelador</option>
-              <option value="Despensa">Despensa</option>
-              <option value="Frutero">Frutero</option>
-              <option value="Alacena">Alacena</option>
-              <option value="Bodega">Bodega</option>
-              <option value="Otro">Otro</option>
-            </select>
-          </div>
-
-          {/* Nombre del producto */}
           <div>
             <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
               Nombre del producto *
             </label>
-            <div className="relative">
-              <Package className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-              <input
-                type="text"
-                id="name"
-                name="name"
-                value={formData.name}
-                onChange={handleInputChange}
-                className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${
-                  errors.name ? 'border-red-300' : 'border-gray-300'
-                }`}
-                placeholder="Ej: Leche entera, Manzanas, Pan integral..."
-              />
-            </div>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              value={formData.name}
+              onChange={handleInputChange}
+              disabled={loading}
+              className={'w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ' + (errors.name ? 'border-red-300' : 'border-gray-300')}
+              placeholder="Ej: Manzanas, Leche, Pan integral..."
+            />
             {errors.name && (
-              <p className="mt-1 text-sm text-red-600 flex items-center">
+              <p className="mt-2 text-sm text-red-600 flex items-center">
                 <AlertCircle className="h-4 w-4 mr-1" />
                 {errors.name}
               </p>
             )}
+            <p className="mt-1 text-xs text-gray-500">
+              La categoría se detectará automáticamente según el nombre
+            </p>
           </div>
 
-          {/* Categoría */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Categoría *
-            </label>
-            <div className="space-y-3">
-              <div className="relative">
-                <Tag className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                <select
-                  name="category"
-                  value={formData.category}
-                  onChange={handleInputChange}
-                  className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${
-                    errors.category ? 'border-red-300' : 'border-gray-300'
-                  }`}
-                >
-                  <option value="">Selecciona una categoría</option>
-                  {categories.map(category => (
-                    <option key={category} value={category}>{category}</option>
-                  ))}
-                </select>
-              </div>
-              
-              <div className="text-center text-sm text-gray-500">o</div>
-              
-              <input
-                type="text"
-                name="customCategory"
-                value={formData.customCategory}
-                onChange={handleInputChange}
-                placeholder="Escribe una categoría personalizada"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors"
-              />
-            </div>
-            {errors.category && (
-              <p className="mt-1 text-sm text-red-600 flex items-center">
-                <AlertCircle className="h-4 w-4 mr-1" />
-                {errors.category}
-              </p>
-            )}
-          </div>
-
-          {/* Opciones de frescura para frutas y verduras */}
-          {showFreshnessOptions && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-3">
-                Estado del producto
-              </label>
-              <div className="grid grid-cols-2 gap-3">
-                {freshnessOptions.map(option => (
-                  <label
-                    key={option.value}
-                    className={`relative flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors ${
-                      formData.status === option.value 
-                        ? `border-${option.color}-300 bg-${option.color}-50` 
-                        : 'border-gray-200'
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name="status"
-                      value={option.value}
-                      checked={formData.status === option.value}
-                      onChange={handleInputChange}
-                      className="sr-only"
-                    />
-                    <div className={`w-3 h-3 rounded-full border-2 mr-3 ${
-                      formData.status === option.value 
-                        ? `bg-${option.color}-500 border-${option.color}-500` 
-                        : 'border-gray-300'
-                    }`} />
-                    <span className="text-sm font-medium text-gray-900">{option.label}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Fecha de caducidad */}
           <div>
             <label htmlFor="expiryDate" className="block text-sm font-medium text-gray-700 mb-2">
-              Fecha de caducidad *
+              Fecha de caducidad (opcional)
             </label>
             <div className="relative">
               <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
@@ -402,28 +234,44 @@ const AddProduct = () => {
                 name="expiryDate"
                 value={formData.expiryDate}
                 onChange={handleInputChange}
+                disabled={loading}
                 min={new Date().toISOString().split('T')[0]}
-                className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ${
-                  errors.expiryDate ? 'border-red-300' : 'border-gray-300'
-                }`}
+                className={'w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-colors ' + (errors.expiryDate ? 'border-red-300' : 'border-gray-300')}
               />
             </div>
             {errors.expiryDate && (
-              <p className="mt-1 text-sm text-red-600 flex items-center">
+              <p className="mt-2 text-sm text-red-600 flex items-center">
                 <AlertCircle className="h-4 w-4 mr-1" />
                 {errors.expiryDate}
               </p>
             )}
+            <p className="mt-1 text-xs text-gray-500">
+              Si no la especificas, se calculará automáticamente según el tipo de producto
+            </p>
           </div>
 
-          {/* Botones */}
-          <div className="flex space-x-4 pt-4">
+          {errors.general && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm flex items-start gap-2">
+              <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
+              <span>{errors.general}</span>
+            </div>
+          )}
+
+          {success && (
+            <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg text-sm flex items-start gap-2">
+              <CheckCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
+              <span>{success}</span>
+            </div>
+          )}
+
+          <div className="flex flex-col sm:flex-row gap-3 pt-4">
             <button
               type="submit"
-              className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white py-3 px-4 rounded-lg font-medium hover:from-green-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-200 shadow-lg flex items-center justify-center space-x-2"
+              disabled={loading}
+              className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white py-3 px-4 rounded-lg font-medium hover:from-green-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-200 shadow-lg flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Plus className="h-5 w-5" />
-              <span>Añadir Producto</span>
+              <span>{loading ? 'Guardando...' : 'Añadir Producto'}</span>
             </button>
             
             <button
@@ -431,17 +279,15 @@ const AddProduct = () => {
               onClick={() => {
                 setFormData({
                   name: '',
-                  category: '',
-                  expiryDate: '',
-                  image: null,
-                  status: 'fresh',
-                  customCategory: ''
+                  expiryDate: ''
                 });
+                setImageFile(null);
                 setImagePreview(null);
-                setShowFreshnessOptions(false);
                 setErrors({});
+                setSuccess('');
               }}
-              className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors"
+              disabled={loading}
+              className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Limpiar
             </button>

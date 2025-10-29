@@ -80,4 +80,89 @@ Responde SOLO con el JSON, sin texto adicional.`;
   }
 };
 
+// Función para generar plan dietético personalizado
+export const generateDiet = async (preferences) => {
+  try {
+    const model = getGeminiModel();
+    
+    const { goal, restrictions, preferences: prefs, mealsPerDay, caloriesTarget, activityLevel } = preferences;
+    
+    const goalText = {
+      'lose_weight': 'perder peso',
+      'maintain': 'mantener peso',
+      'gain_muscle': 'ganar músculo',
+      'healthy_eating': 'comer más saludable'
+    }[goal] || 'mejorar hábitos alimenticios';
+
+    const prompt = `Eres un nutricionista experto. Crea un plan dietético personalizado de 7 días con las siguientes características:
+
+OBJETIVO: ${goalText}
+RESTRICCIONES ALIMENTARIAS: ${restrictions.join(', ') || 'Ninguna'}
+PREFERENCIAS CULINARIAS: ${prefs.join(', ') || 'Variadas'}
+COMIDAS POR DÍA: ${mealsPerDay}
+OBJETIVO CALÓRICO: ${caloriesTarget}
+NIVEL DE ACTIVIDAD: ${activityLevel}
+
+Genera un plan que incluya:
+1. Resumen general del plan (150 palabras máx)
+2. Recomendaciones nutricionales específicas
+3. Plan de comidas para 7 días con:
+   - Desayuno, Almuerzo, Cena (y snacks si aplica)
+   - Descripción de cada comida
+   - Calorías aproximadas
+   - Ingredientes principales
+
+IMPORTANTE: El plan debe ser realista, variado y fácil de seguir.
+
+Formato JSON exacto:
+{
+  "resumen": "Descripción del plan",
+  "recomendaciones": [
+    "Recomendación 1",
+    "Recomendación 2",
+    "Recomendación 3"
+  ],
+  "calorias_diarias_target": "1500-2000 kcal",
+  "dias": [
+    {
+      "dia": 1,
+      "comidas": [
+        {
+          "tipo": "Desayuno",
+          "nombre": "Nombre del plato",
+          "descripcion": "Descripción breve",
+          "calorias": 400,
+          "ingredientes": ["ingrediente1", "ingrediente2"]
+        }
+      ]
+    }
+  ]
+}
+
+Responde SOLO con el JSON, sin texto adicional.`;
+
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const text = response.text();
+    
+    // Limpiar el texto para obtener solo el JSON
+    let jsonText = text.trim();
+    
+    // Remover markdown code blocks si existen
+    if (jsonText.startsWith('```json')) {
+      jsonText = jsonText.replace(/```json\n?/g, '').replace(/```\n?/g, '');
+    } else if (jsonText.startsWith('```')) {
+      jsonText = jsonText.replace(/```\n?/g, '');
+    }
+    
+    // Parse JSON
+    const data = JSON.parse(jsonText);
+    
+    return data;
+  } catch (error) {
+    console.error('Error generando plan dietético:', error);
+    throw new Error('No se pudo generar el plan dietético. Por favor intenta de nuevo.');
+  }
+};
+
 export default genAI;

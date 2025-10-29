@@ -1,5 +1,6 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
+import productService from '../services/productService';
 import { format, isAfter, isBefore, addDays } from 'date-fns';
 import { 
   Search, 
@@ -16,13 +17,31 @@ import {
 } from 'lucide-react';
 
 const MyProducts = () => {
-  const { products, deleteProduct, markProductAsConsumed } = useApp();
+  const { user } = useApp();
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [showImageModal, setShowImageModal] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [sortBy, setSortBy] = useState('expiryDate');
+
+  // Cargar productos del usuario desde Firestore
+  useEffect(() => {
+    if (user) {
+      loadProducts();
+    }
+  }, [user]);
+
+  const loadProducts = async () => {
+    setLoading(true);
+    const result = await productService.getUserProducts(user.uid);
+    if (result.success) {
+      setProducts(result.products);
+    }
+    setLoading(false);
+  };
 
   // Obtener categorías únicas
   const categories = useMemo(() => {
@@ -70,7 +89,12 @@ const MyProducts = () => {
         case 'category':
           return (a.category || '').localeCompare(b.category || '');
         case 'addedDate':
-          return new Date(b.addedDate) - new Date(a.addedDate);
+          const dateA = a.createdAt || a.addedDate;
+          const dateB = b.createdAt || b.addedDate;
+          if (!dateA && !dateB) return 0;
+          if (!dateA) return 1;
+          if (!dateB) return -1;
+          return new Date(dateB) - new Date(dateA);
         case 'expiryDate':
         default:
           if (!a.expiryDate && !b.expiryDate) return 0;
@@ -83,15 +107,26 @@ const MyProducts = () => {
     return filtered;
   }, [products, searchTerm, selectedCategory, selectedStatus, sortBy]);
 
-  const handleDeleteProduct = (productId, productName) => {
-    if (window.confirm(`¿Estás seguro de que quieres eliminar "${productName}"?`)) {
-      deleteProduct(productId);
+  const handleDeleteProduct = async (product) => {
+    if (window.confirm(`¿Estás seguro de que quieres eliminar "${product.name}"?`)) {
+      const result = await productService.deleteProduct(product.id, product);
+      if (result.success) {
+        // Recargar productos
+        loadProducts();
+      } else {
+        alert(result.error);
+      }
     }
   };
 
-  const handleMarkAsConsumed = (productId, productName) => {
-    if (window.confirm(`¿Marcar "${productName}" como consumido?`)) {
-      markProductAsConsumed(productId);
+  const handleMarkAsConsumed = async (product) => {
+    if (window.confirm(`¿Marcar "${product.name}" como consumido?`)) {
+      const result = await productService.deleteProduct(product.id, product);
+      if (result.success) {
+        loadProducts();
+      } else {
+        alert(result.error);
+      }
     }
   };
 
@@ -117,6 +152,14 @@ const MyProducts = () => {
       </span>
     );
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -270,9 +313,11 @@ const MyProducts = () => {
                           </div>
                         )}
                         
-                        <div className="flex items-center gap-2">
-                          <span>Agregado: {format(new Date(product.addedDate), 'dd/MM/yyyy')}</span>
-                        </div>
+                        {(product.createdAt || product.addedDate) && (
+                          <div className="flex items-center gap-2">
+                            <span>Agregado: {format(new Date(product.createdAt || product.addedDate), 'dd/MM/yyyy')}</span>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -280,7 +325,7 @@ const MyProducts = () => {
                   {/* Acciones */}
                   <div className="flex flex-col sm:flex-row gap-2 flex-shrink-0">
                     <button
-                      onClick={() => handleMarkAsConsumed(product.id, product.name)}
+                      onClick={() => handleMarkAsConsumed(product)}
                       className="flex items-center justify-center px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors text-sm font-medium"
                       title="Marcar como consumido"
                     >
@@ -288,7 +333,7 @@ const MyProducts = () => {
                       Consumido
                     </button>
                     <button
-                      onClick={() => handleDeleteProduct(product.id, product.name)}
+                      onClick={() => handleDeleteProduct(product)}
                       className="flex items-center justify-center px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors text-sm font-medium"
                       title="Eliminar producto"
                     >

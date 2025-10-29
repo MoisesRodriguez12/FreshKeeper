@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { db } from '../config/firebase';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 import { RefreshCw, Eye, ImageIcon } from 'lucide-react';
@@ -28,6 +28,11 @@ const Gallery = () => {
     }
   };
 
+  // Cargar automáticamente al montar el componente
+  useEffect(() => {
+    loadGallery();
+  }, []);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50 p-3 sm:p-4 py-6 sm:py-8">
       <div className="max-w-7xl mx-auto">
@@ -37,7 +42,7 @@ const Gallery = () => {
             <Eye className="h-6 w-6 sm:h-8 sm:w-8 text-purple-600" />
           </div>
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-            Galería de Creaciones 🎨
+            Galería de Creaciones
           </h1>
           <p className="text-sm sm:text-base text-gray-600 mb-4">
             Descubre las deliciosas recetas que otros usuarios han cocinado

@@ -1,11 +1,31 @@
+import { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
-import { getDisposalTips } from '../utils/helpers';
+import { getDisposalTips, getExpiryStatus } from '../utils/helpers';
 import { Recycle, Trash2, Sprout, AlertTriangle, Info, CheckCircle } from 'lucide-react';
+import productService from '../services/productService';
 
 const Disposal = () => {
-  const { getExpiredProducts, products } = useApp();
-  
-  const expiredProducts = getExpiredProducts();
+  const { user } = useApp();
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Cargar productos del usuario desde Firebase
+  useEffect(() => {
+    if (user) {
+      loadUserProducts();
+    }
+  }, [user]);
+
+  const loadUserProducts = async () => {
+    setLoading(true);
+    const result = await productService.getUserProducts(user.uid);
+    if (result.success) {
+      setProducts(result.products);
+    }
+    setLoading(false);
+  };
+
+  const expiredProducts = products.filter(p => getExpiryStatus(p.expiryDate) === 'expired');
   const categories = [...new Set(products.map(p => p.category))];
 
   const compostGuide = {
@@ -34,28 +54,23 @@ const Disposal = () => {
   const compostSteps = [
     {
       title: 'Preparación del contenedor',
-      description: 'Usa un contenedor con agujeros para ventilación. Puede ser una compostera comercial o un recipiente casero.',
-      icon: '🗂️'
+      description: 'Usa un contenedor con agujeros para ventilación. Puede ser una compostera comercial o un recipiente casero.'
     },
     {
       title: 'Capas alternas',
-      description: 'Alterna capas de material húmedo (restos de cocina) con material seco (hojas, papel).',
-      icon: '🥞'
+      description: 'Alterna capas de material húmedo (restos de cocina) con material seco (hojas, papel).'
     },
     {
       title: 'Humedad adecuada',
-      description: 'El compost debe estar húmedo como una esponja escurrida. Riega si está muy seco.',
-      icon: '💧'
+      description: 'El compost debe estar húmedo como una esponja escurrida. Riega si está muy seco.'
     },
     {
       title: 'Ventilación',
-      description: 'Remueve el compost cada 2-3 semanas para aportar oxígeno y acelerar la descomposición.',
-      icon: '🌪️'
+      description: 'Remueve el compost cada 2-3 semanas para aportar oxígeno y acelerar la descomposición.'
     },
     {
       title: 'Tiempo de maduración',
-      description: 'El compost estará listo en 3-6 meses. Tendrá aspecto de tierra oscura y olor a bosque.',
-      icon: '⏰'
+      description: 'El compost estará listo en 3-6 meses. Tendrá aspecto de tierra oscura y olor a bosque.'
     }
   ];
 
@@ -113,7 +128,7 @@ const Disposal = () => {
                     
                     {tips.compostTip && (
                       <p className="text-xs text-green-700 bg-green-50 p-2 rounded border border-green-200">
-                        💡 {tips.compostTip}
+                        Tip: {tips.compostTip}
                       </p>
                     )}
                   </div>
@@ -164,7 +179,7 @@ const Disposal = () => {
                   
                   {tips.compostTip && (
                     <p className="text-xs text-green-700 mt-2 bg-green-50 p-2 rounded border border-green-200">
-                      💡 <strong>Tip:</strong> {tips.compostTip}
+                      <strong>Tip:</strong> {tips.compostTip}
                     </p>
                   )}
                 </div>

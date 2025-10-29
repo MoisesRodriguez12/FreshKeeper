@@ -74,32 +74,28 @@ export const getRecipeSuggestions = (products) => {
       name: 'Smoothie de frutas',
       ingredients: ['manzana', 'plátano', 'leche'],
       description: 'Un delicioso smoothie para aprovechar frutas maduras',
-      time: '5 min',
-      image: '🥤'
+      time: '5 min'
     },
     {
       id: 2,
       name: 'Torrijas',
       ingredients: ['pan', 'leche', 'huevo'],
       description: 'Perfectas para aprovechar pan que está por caducar',
-      time: '20 min',
-      image: '🍞'
+      time: '20 min'
     },
     {
       id: 3,
       name: 'Batido de yogur',
       ingredients: ['yogur', 'fruta'],
       description: 'Aprovecha yogures que están por vencer',
-      time: '3 min',
-      image: '🥛'
+      time: '3 min'
     },
     {
       id: 4,
       name: 'Compota de manzana',
       ingredients: ['manzana'],
       description: 'Ideal para manzanas muy maduras',
-      time: '15 min',
-      image: '🍎'
+      time: '15 min'
     }
   ];
 
@@ -128,37 +124,31 @@ export const isAndroid = () => {
 export const getDisposalTips = (category) => {
   const tips = {
     'Lácteos': {
-      icon: '🥛',
       disposal: 'Los lácteos caducados deben desecharse en el contenedor orgánico. No son aptos para compost doméstico.',
       compost: false
     },
     'Frutas': {
-      icon: '🍎',
       disposal: 'Las frutas se pueden compostar o desechar en contenedor orgánico.',
       compost: true,
       compostTip: 'Corta en trozos pequeños para acelerar la descomposición.'
     },
     'Verduras': {
-      icon: '🥬',
       disposal: 'Las verduras son excelentes para compost.',
       compost: true,
       compostTip: 'Mezcla con material seco como hojas o papel.'
     },
     'Panadería': {
-      icon: '🍞',
       disposal: 'El pan viejo se puede compostar o usar como alimento para animales (si no tiene moho).',
       compost: true,
       compostTip: 'Desmenúzalo antes de añadirlo al compost.'
     },
     'Carnes': {
-      icon: '🥩',
       disposal: 'Las carnes deben desecharse en el contenedor orgánico. NO añadir al compost doméstico.',
       compost: false
     }
   };
 
   return tips[category] || {
-    icon: '🗑️',
     disposal: 'Consulta las normas locales de reciclaje para este producto.',
     compost: false
   };

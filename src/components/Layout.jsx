@@ -27,6 +27,7 @@ const Layout = ({ children, currentPage, onPageChange }) => {
     { id: 'add-product', name: 'Añadir Producto', icon: Plus },
     { id: 'my-products', name: 'Mis Productos', icon: Package },
     { id: 'recipes', name: 'Recetas', icon: ChefHat },
+    { id: 'my-meals', name: 'Mis Comidas', icon: ChefHat },
     { id: 'gallery', name: 'Galería', icon: Eye },
     { id: 'disposal', name: 'Gestión de Residuos', icon: Recycle },
   ];
@@ -163,9 +164,13 @@ const Layout = ({ children, currentPage, onPageChange }) => {
                   <p className="text-xs text-gray-500 truncate max-w-32">{user?.email}</p>
                 </div>
                 
-                <div className="bg-green-100 rounded-full p-1.5 sm:p-2">
+                <button
+                  onClick={() => onPageChange('profile')}
+                  className="bg-green-100 rounded-full p-1.5 sm:p-2 hover:bg-green-200 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500"
+                  title="Ver perfil"
+                >
                   <User className="h-4 w-4 sm:h-5 sm:w-5 text-green-600" />
-                </div>
+                </button>
                 
                 <button
                   onClick={handleLogout}
@@ -212,6 +217,16 @@ const Layout = ({ children, currentPage, onPageChange }) => {
                   <p className="text-sm font-medium text-gray-900">{user?.name}</p>
                   <p className="text-xs text-gray-500">{user?.email}</p>
                 </div>
+                <button
+                  onClick={() => {
+                    onPageChange('profile');
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="w-full flex items-center px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors"
+                >
+                  <User className="h-5 w-5 mr-3" />
+                  Mi Perfil
+                </button>
                 <button
                   onClick={handleLogout}
                   className="w-full flex items-center px-3 py-2 rounded-md text-base font-medium text-red-600 hover:text-red-700 hover:bg-red-50 transition-colors"

@@ -1,4 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
+import authService from '../services/authService';
+import mealService from '../services/mealService';
 
 const AppContext = createContext();
 
@@ -12,78 +14,40 @@ export const useApp = () => {
 
 export const AppProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [products, setProducts] = useState([
-    // Datos de ejemplo con imágenes reales
-    {
-      id: 1,
-      name: 'Leche entera',
-      expiryDate: '2025-09-14', // 2 días desde hoy
-      category: 'Lácteos',
-      quantity: 1,
-      unit: 'litro',
-      location: 'Nevera',
-      addedDate: '2025-09-10',
-      photo: '/leche.jpeg',
-      status: 'fresh'
-    },
-    {
-      id: 2,
-      name: 'Manzanas Rojas',
-      expiryDate: '2025-09-13', // 1 día desde hoy
-      category: 'Frutas',
-      quantity: 6,
-      unit: 'unidades',
-      location: 'Frutero',
-      addedDate: '2025-09-08',
-      photo: '/manzanasrojas.jpg',
-      status: 'ripe'
-    },
-    {
-      id: 3,
-      name: 'Pan integral',
-      expiryDate: '2025-09-15', // 3 días desde hoy
-      category: 'Panadería',
-      quantity: 1,
-      unit: 'barra',
-      location: 'Despensa',
-      addedDate: '2025-09-12',
-      photo: '/panintegral.jpg',
-      status: 'fresh'
-    },
-    {
-      id: 4,
-      name: 'Yogur natural',
-      expiryDate: '2025-09-11', // Caducado ayer
-      category: 'Lácteos',
-      quantity: 4,
-      unit: 'unidades',
-      location: 'Nevera',
-      addedDate: '2025-09-01',
-      photo: '/yogurthnatural.jpg',
-      status: 'expired'
-    }
-  ]);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [products, setProducts] = useState([]);
 
   // Simular notificaciones
   const [notifications, setNotifications] = useState([]);
   const [toastNotifications, setToastNotifications] = useState([]);
   const notifiedProductsRef = useRef(new Set());
 
-  const login = (email, password) => {
-    // Simulación de login
-    if (email && password) {
-      setUser({ email, name: 'Usuario Demo' });
-      return true;
-    }
-    return false;
+  // Manejar cambios en el estado de autenticación de Firebase
+  useEffect(() => {
+    const unsubscribe = authService.onAuthStateChanged((firebaseUser) => {
+      if (firebaseUser) {
+        setUser(authService.formatUser(firebaseUser));
+      } else {
+        setUser(null);
+      }
+      setAuthLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const login = (userData) => {
+    setUser(userData);
   };
 
-  const logout = () => {
-    setUser(null);
-    // Limpiar notificaciones y estado al hacer logout
-    setNotifications([]);
-    setToastNotifications([]);
-    notifiedProductsRef.current.clear();
+  const logout = async () => {
+    const result = await authService.logout();
+    if (result.success) {
+      setUser(null);
+      setNotifications([]);
+      setToastNotifications([]);
+      notifiedProductsRef.current.clear();
+    }
   };
 
   const addProduct = (product) => {
@@ -203,6 +167,59 @@ export const AppProvider = ({ children }) => {
     };
   }, [user, getExpiringProducts]);
 
+  // Verificar comidas que necesitan recordatorio (2-3 días después de guardar)
+  useEffect(() => {
+    if (!user) return;
+
+    const checkMealNotifications = async () => {
+      const result = await mealService.getMealsNeedingNotification();
+      
+      if (result.success && result.meals.length > 0) {
+        console.log('Comidas que necesitan notificación:', result.meals.length);
+        
+        const mealNotifications = result.meals.map(meal => ({
+          id: `meal-${meal.id}`,
+          type: 'info',
+          message: `¿Ya terminaste "${meal.recipeName}"? Revisa si se te acabó`,
+          meal: meal,
+          timestamp: new Date().toISOString()
+        }));
+        
+        setNotifications(prev => [...prev, ...mealNotifications]);
+        
+        // Crear toasts para cada comida
+        const mealToasts = mealNotifications.map(notification => ({
+          ...notification,
+          showAsToast: true,
+          id: `toast-${notification.id}`
+        }));
+        
+        // Añadir toasts con delay escalonado
+        mealToasts.forEach((toast, index) => {
+          setTimeout(() => {
+            setToastNotifications(prev => [...prev, toast]);
+          }, index * 500);
+        });
+        
+        // Marcar notificaciones como enviadas
+        result.meals.forEach(meal => {
+          mealService.markNotificationSent(meal.id);
+        });
+      }
+    };
+
+    // Verificar al cargar
+    const timeoutId = setTimeout(checkMealNotifications, 2000);
+    
+    // Verificar cada hora
+    const interval = setInterval(checkMealNotifications, 60 * 60 * 1000);
+    
+    return () => {
+      clearTimeout(timeoutId);
+      clearInterval(interval);
+    };
+  }, [user]);
+
   // Registrar service worker (mantenido para funcionalidad PWA)
   useEffect(() => {
     if (user) {
@@ -231,6 +248,7 @@ export const AppProvider = ({ children }) => {
 
   const value = {
     user,
+    authLoading,
     products,
     notifications,
     toastNotifications,
