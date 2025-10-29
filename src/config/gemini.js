@@ -22,22 +22,47 @@ export const getGeminiModel = () => {
 };
 
 // Función para generar recetas basadas en ingredientes
-export const generateRecipes = async (ingredients, numPersonas = 2) => {
+export const generateRecipes = async (ingredients, numPersonas = 2, userPreferences = null) => {
   try {
     const model = getGeminiModel();
     
-    const prompt = `Eres un chef experto. Genera exactamente 2 recetas diferentes y creativas usando estos ingredientes: ${ingredients.join(', ')}, puedes agregar ingedientes pero intenta solo usar los anteriores.
-    Recomienda solo recetas faciles de menos de 15 minutos y sin procedimientos complicados.
+    // Construir el prompt considerando las preferencias del usuario
+    let dietaryInfo = '';
+    if (userPreferences) {
+      if (userPreferences.restrictions && userPreferences.restrictions.length > 0) {
+        dietaryInfo += `\nRESTRICCIONES ALIMENTARIAS: ${userPreferences.restrictions.join(', ')}`;
+      }
+      if (userPreferences.preferences && userPreferences.preferences.length > 0) {
+        dietaryInfo += `\nPREFERENCIAS CULINARIAS: ${userPreferences.preferences.join(', ')}`;
+      }
+      if (userPreferences.goal) {
+        const goalText = {
+          'bajar_peso': 'bajar de peso (recetas bajas en calorías)',
+          'mantener_peso': 'mantener peso (recetas balanceadas)',
+          'ganar_peso': 'ganar peso (recetas más calóricas)',
+          'ganar_musculo': 'ganar músculo (recetas altas en proteína)',
+          'salud_general': 'mejorar salud general (recetas nutritivas)'
+        }[userPreferences.goal] || 'comer saludable';
+        dietaryInfo += `\nOBJETIVO: ${goalText}`;
+      }
+    }
     
+    const prompt = `Eres un chef experto y nutricionista. Genera exactamente 2 recetas diferentes y creativas usando estos ingredientes: ${ingredients.join(', ')}, puedes agregar ingredientes pero intenta usar principalmente los anteriores.
+    Recomienda solo recetas fáciles de menos de 15 minutos y sin procedimientos complicados.
+    ${dietaryInfo}
+
 IMPORTANTE: Las recetas deben ser para ${numPersonas} ${numPersonas === 1 ? 'persona' : 'personas'}. Ajusta las cantidades de ingredientes en consecuencia.
+
+${userPreferences?.restrictions?.length > 0 ? `RESTRICCIONES IMPORTANTES: Asegúrate de que las recetas NO contengan: ${userPreferences.restrictions.join(', ')}` : ''}
 
 Para cada receta proporciona:
 1. Nombre de la receta (máximo 50 caracteres)
 2. Tiempo de preparación estimado
 3. Dificultad (Fácil)
 4. Descripción breve (máximo 300 caracteres)
-5. Lista de ingredientes con cantidades específicas para ${numPersonas} ${numPersonas === 1 ? 'persona' : 'personas'}
+5. Lista de ingredientes con cantidades específicas para ${numPersonas} ${numPersonas === 1 ? 'persona' : 'personas'} Y CALORÍAS APROXIMADAS de cada ingrediente
 6. Pasos detallados de preparación numerados
+7. INFORMACIÓN NUTRICIONAL: Calorías totales aproximadas por porción y desglose de macronutrientes
 
 Formato JSON exacto:
 {
@@ -47,9 +72,25 @@ Formato JSON exacto:
       "tiempo": "30 minutos",
       "dificultad": "Fácil",
       "descripcion": "Descripción breve",
-      "ingredientes": ["ingrediente 1", "ingrediente 2"],
+      "ingredientes": [
+        {
+          "nombre": "ingrediente 1 con cantidad",
+          "calorias": 100
+        },
+        {
+          "nombre": "ingrediente 2 con cantidad",
+          "calorias": 50
+        }
+      ],
       "pasos": ["Paso 1", "Paso 2", "Paso 3"],
-      "porciones": ${numPersonas}
+      "porciones": ${numPersonas},
+      "nutricion": {
+        "calorias_totales": 300,
+        "calorias_por_porcion": 150,
+        "proteinas": "20g",
+        "carbohidratos": "30g",
+        "grasas": "10g"
+      }
     }
   ]
 }

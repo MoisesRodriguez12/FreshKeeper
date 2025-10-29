@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { getExpiryStatus } from '../utils/helpers';
-import { ChefHat, Clock, Users, Lightbulb, Sparkles, RefreshCw, Save, AlertCircle, CheckCircle } from 'lucide-react';
+import { ChefHat, Clock, Users, Lightbulb, Sparkles, RefreshCw, Save, AlertCircle, CheckCircle, Flame } from 'lucide-react';
 import { generateRecipes } from '../config/gemini';
 import productService from '../services/productService';
 import mealService from '../services/mealService';
+import dietService from '../services/dietService';
+import userService from '../services/userService';
 
 const Recipes = () => {
   const { user } = useApp();
@@ -16,11 +18,13 @@ const Recipes = () => {
   const [generatedRecipes, setGeneratedRecipes] = useState([]);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [userPreferences, setUserPreferences] = useState(null);
   
-  // Cargar productos del usuario
+  // Cargar productos y preferencias del usuario
   useEffect(() => {
     if (user) {
       loadUserProducts();
+      loadUserPreferences();
     }
   }, [user]);
 
@@ -32,6 +36,21 @@ const Recipes = () => {
         return new Date(a.expiryDate) - new Date(b.expiryDate);
       });
       setProducts(sorted);
+    }
+  };
+
+  const loadUserPreferences = async () => {
+    // Intentar cargar preferencias de la dieta
+    const dietResult = await dietService.getUserDiet(user.uid);
+    if (dietResult.success && dietResult.diet?.preferences) {
+      setUserPreferences(dietResult.diet.preferences);
+      return;
+    }
+
+    // Si no hay dieta, intentar cargar preferencias del perfil
+    const profileResult = await userService.getUserProfile(user.uid);
+    if (profileResult.success && profileResult.profile?.dietPreferences) {
+      setUserPreferences(profileResult.profile.dietPreferences);
     }
   };
 
@@ -60,7 +79,7 @@ const Recipes = () => {
         .filter(p => selectedProducts.includes(p.id))
         .map(p => p.name);
 
-      const recipes = await generateRecipes(selectedProductNames, servings);
+      const recipes = await generateRecipes(selectedProductNames, servings, userPreferences);
       setGeneratedRecipes(recipes);
     } catch (err) {
       setError(err.message || 'Error al generar la receta');
@@ -132,6 +151,38 @@ const Recipes = () => {
         <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg text-sm flex items-start gap-2">
           <CheckCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
           <span>{success}</span>
+        </div>
+      )}
+
+      {/* Preferencias del usuario */}
+      {userPreferences && (
+        <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+          <h3 className="text-sm font-semibold text-blue-900 mb-2 flex items-center">
+            <Sparkles className="h-4 w-4 mr-1" />
+            Tus preferencias están siendo consideradas:
+          </h3>
+          <div className="flex flex-wrap gap-2">
+            {userPreferences.goal && (
+              <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
+                🎯 {userPreferences.goal.replace('_', ' ')}
+              </span>
+            )}
+            {userPreferences.restrictions?.map((restriction, idx) => (
+              <span key={idx} className="px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs font-medium">
+                🚫 {restriction}
+              </span>
+            ))}
+            {userPreferences.preferences?.slice(0, 3).map((pref, idx) => (
+              <span key={idx} className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
+                ❤️ {pref}
+              </span>
+            ))}
+            {userPreferences.preferences?.length > 3 && (
+              <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium">
+                +{userPreferences.preferences.length - 3} más
+              </span>
+            )}
+          </div>
         </div>
       )}
 
@@ -315,16 +366,63 @@ const RecipeCard = ({ recipe, onSave }) => {
           <p className="text-sm text-gray-600 mb-4 italic">{recipe.descripcion}</p>
         )}
 
+        {/* Información Nutricional */}
+        {recipe.nutricion && (
+          <div className="mb-4 bg-gradient-to-r from-orange-50 to-yellow-50 border border-orange-200 rounded-lg p-3">
+            <div className="flex items-center justify-between mb-2">
+              <h4 className="text-sm font-semibold text-orange-900 flex items-center">
+                <Flame className="h-4 w-4 mr-1 text-orange-600" />
+                Información Nutricional
+              </h4>
+              <span className="text-lg font-bold text-orange-600">
+                {recipe.nutricion.calorias_por_porcion} kcal
+              </span>
+            </div>
+            <div className="grid grid-cols-3 gap-2 text-xs">
+              <div className="bg-white rounded px-2 py-1 text-center">
+                <div className="font-medium text-gray-900">{recipe.nutricion.proteinas}</div>
+                <div className="text-gray-600">Proteínas</div>
+              </div>
+              <div className="bg-white rounded px-2 py-1 text-center">
+                <div className="font-medium text-gray-900">{recipe.nutricion.carbohidratos}</div>
+                <div className="text-gray-600">Carbos</div>
+              </div>
+              <div className="bg-white rounded px-2 py-1 text-center">
+                <div className="font-medium text-gray-900">{recipe.nutricion.grasas}</div>
+                <div className="text-gray-600">Grasas</div>
+              </div>
+            </div>
+            <div className="text-xs text-orange-700 mt-2">
+              Total: {recipe.nutricion.calorias_totales} kcal ({recipe.porciones} {recipe.porciones === 1 ? 'porción' : 'porciones'})
+            </div>
+          </div>
+        )}
+
         {/* Ingredientes */}
         <div className="mb-4">
           <h4 className="text-sm font-medium text-gray-900 mb-2">Ingredientes:</h4>
           <ul className="text-sm text-gray-600 space-y-1">
-            {(recipe.ingredientes || []).map((ingredient, index) => (
-              <li key={index} className="flex items-start">
-                <span className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 mr-2 flex-shrink-0"></span>
-                {ingredient}
-              </li>
-            ))}
+            {(recipe.ingredientes || []).map((ingredient, index) => {
+              // Manejar tanto formato string como objeto
+              const isObject = typeof ingredient === 'object';
+              const ingredientName = isObject ? ingredient.nombre : ingredient;
+              const ingredientCalories = isObject ? ingredient.calorias : null;
+              
+              return (
+                <li key={index} className="flex items-start justify-between">
+                  <div className="flex items-start flex-1">
+                    <span className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 mr-2 flex-shrink-0"></span>
+                    <span>{ingredientName}</span>
+                  </div>
+                  {ingredientCalories && (
+                    <span className="text-xs text-orange-600 font-medium ml-2 flex items-center">
+                      <Flame className="h-3 w-3 mr-0.5" />
+                      {ingredientCalories} kcal
+                    </span>
+                  )}
+                </li>
+              );
+            })}
           </ul>
         </div>
 
